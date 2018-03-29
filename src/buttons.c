@@ -1,7 +1,40 @@
+/* not thread safe, but may work for simple user input...
+ */
+
 #include "buttons.h"
 #include "leds.h"
 #include "stm32f10x.h"
-#include "usart.h"
+
+static int btn_state;
+
+/* button A is connected to interrupt line EXTI13 */
+int btna_hit() {
+		int temp = btn_state;
+		btn_state = 0;
+		return temp;
+}
+
+/* as button B is not connected to an interrupt line, this functions
+ * blocks. Maybe useful for GUI thread ("press button to continue...").
+ */
+int btnb_hit() {
+	
+}
+
+void btnb_wait() {
+	btnb_hit();
+}
+
+/* button A is connected to EXTI_Line13 */
+void EXTI15_10_IRQHandler(void) {
+	if(EXTI_GetITStatus(EXTI_Line13) != RESET) {
+		EXTI_ClearITPendingBit(EXTI_Line13);
+		btn_state = 1;
+        LED2_ON();      
+	}
+
+	return;
+}
 
 void init_buttons() {
 	GPIO_InitTypeDef GPIO_InitStructure;
@@ -43,15 +76,8 @@ void init_buttons() {
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 	EXTI_Init(&EXTI_InitStructure);
 
-	return;
-}
-
-/* button is connected to EXTI_Line13 */
-void EXTI15_10_IRQHandler(void) {
-	if(EXTI_GetITStatus(EXTI_Line13) != RESET) {
-		EXTI_ClearITPendingBit(EXTI_Line13);
-        LED2_ON();        
-	}
+	btn_state = 0;
 
 	return;
 }
+
