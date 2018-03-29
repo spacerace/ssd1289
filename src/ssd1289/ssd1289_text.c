@@ -4,19 +4,20 @@
  * Fonts are taken from linux's source code.
  * simple text console written by Nils Stec.
  * 
+ * TODO:
+ * 	- font spacing
+ * 
  * 
  */
 
 #include <stdio.h>
 
 #include "ssd1289.h"
-#include "fonts/linux_sun_8x16.h"
+
 #include "fonts/linux_acorn_8x8.h"
 #include "fonts/linux_8x16.h"
 #include "fonts/linux_8x8.h"
 #include "fonts/linux_pearl_8x8.h"
-#include "fonts/linux_mac_6x11.h"
-
 
 static struct simple_textcon {
 	int char_transparent_bg;
@@ -64,7 +65,7 @@ void ssd1289_textcon_init() {
 	con.char_fg = 0xffff;
 	con.char_bg = 0x0000;
 	
-	ssd1289_set_font(FONT_LINUX_SUN_8x16);
+	ssd1289_set_font(FONT_LINUX_8x16);
 	
 	con.cursor_x = 0;
 	con.cursor_y = 0;
@@ -73,13 +74,6 @@ void ssd1289_textcon_init() {
 
 void ssd1289_set_font(int font) {
 	switch(font) {
-		case FONT_LINUX_SUN_8x16:
-			con.font_data = (uint8_t *)&fontdata_sun_8x16;
-			con.font_size_x = 8;
-			con.font_size_y = 16;			
-			con.char_spacing_x = 1;
-			con.char_spacing_y = 1;
-			break;
 		case FONT_LINUX_ACORN_8x8:
 			con.font_data = (uint8_t *)&fontdata_acorn_8x8;
 			con.font_size_x = 8;
@@ -100,8 +94,7 @@ void ssd1289_set_font(int font) {
 			con.font_size_y = 8;			
 			con.char_spacing_x = 1;
 			con.char_spacing_y = 1;
-			break;
-			
+			break;	
 		case FONT_LINUX_PEARL_8x8:
 			con.font_data = (uint8_t *)&fontdata_pearl_8x8;
 			con.font_size_x = 8;
@@ -109,14 +102,6 @@ void ssd1289_set_font(int font) {
 			con.char_spacing_x = 1;
 			con.char_spacing_y = 1;
 			break;
-		case FONT_LINUX_MAC_6x11:
-			con.font_data = (uint8_t *)&fontdata_mac_6x11;
-			con.font_size_x = 6;
-			con.font_size_y = 11;			
-			con.char_spacing_x = 2;
-			con.char_spacing_y = 1;
-			break;
-			
 	}
 	return;
 }
@@ -146,28 +131,30 @@ void ssd1289_get_text_cursor(int *x, int *y) {
 }
 
 void ssd1289_put_char_at(int x_off, int y_off, uint8_t c) {
-	int offset_in_charset = c * con.font_size_y;
+	int x, y;
+	int offset_in_charset;
+	int transparent = con.char_transparent_bg;
+	uint8_t line_data;
 	uint16_t fg = con.char_fg;
 	uint16_t bg = con.char_bg;
 	uint16_t size_x = con.font_size_x;
 	uint16_t size_y = con.font_size_y;
-	int trans = con.char_transparent_bg;
 	
-	int x, y;
-	uint8_t line_data;
+	offset_in_charset =  c * con.font_size_y;
+	
 	
 	for(y = 0; y < size_y; y++) {
 		line_data = con.font_data[offset_in_charset+y];
-		
 		for(x = 0; x < size_x; x++) {
 			if((line_data>>x) & 0x01) {
 				ssd1289_setpx(x_off+size_x-x, y_off+y, fg);
 			} else {
-				if(trans == FALSE) {
+				if(transparent == FALSE) {
 					ssd1289_setpx(x_off+size_x-x, y_off+y, bg);
 				}
 			}
 		}
+		
 	}
 	
 	return;

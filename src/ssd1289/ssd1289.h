@@ -25,12 +25,10 @@
 #define LCD_CLEAR_COLOR			RGB_COL_BLACK
 
 /* fonts */
-#define FONT_LINUX_SUN_8x16		1
 #define FONT_LINUX_ACORN_8x8	2
 #define FONT_LINUX_8x16			3
 #define FONT_LINUX_8x8			4
 #define FONT_LINUX_PEARL_8x8	5
-#define FONT_LINUX_MAC_6x11		6
 
 /* LCD geometry */
 #define LCD_SIZE_X				240

@@ -1,23 +1,25 @@
 /*
  * SSD1289 driver example
  * Nils Stec <stecdose@gmail.com>
- * 2017-07-01
+ * 2018-03-29
  * 
- * driver was written to be used with or without an os.
- * this is the freertos example on how to use it.
+ * This driver was written to be used with or without an OS.
+ * This is the FreeRTOS example on how to use it.
  * 
- * the whole thing was written using a board called
+ * The whole thing was written using a board called
  * "HY-MiniSTM32V" with an LCD called "HY32D".
- * it has:
- *   - stm32f103vct6, 256k flash, 64k ram
- *   - display connection 8080 bus to fsmc
+ * It's specs:
+ *   - STM32F103VCT6, 256k flash, 64k RAM
+ *   - display connection 8080 bus to FSMC
  * 
- * there are a few tasks running:
+ * There are a three tasks running:
  * 		vT_display_demo()	- all you can see on screen when demo is running
- *      vT_usart()			- a simple console running on USART1, interfacing all graphics+demo-functions
+ *      vT_usart()			- a simple console running on USART1, 
+ * 							  interfacing all graphics+demo-functions
  *      vT_led()			- blinks a led and checks buttonX
- * there is also an ISR installed for buttonY it does ____________________
  * 
+ * There is also an ISR installed for a button connected to PC13.
+ * It's purpose is to cycle through the demo screens.
  *  
  */
 
@@ -109,33 +111,23 @@ void vT_display_demo(void *p) {
 	
 	// text demo
 	
-	ssd1289_set_font(FONT_LINUX_SUN_8x16);
-	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_BLACK);
-	ssd1289_puts_at(15, 140, "Linux' Sun 8x16 Font");
-
 	ssd1289_set_font(FONT_LINUX_8x16);
 	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_BLACK);
-	ssd1289_puts_at(15, 156, "Linux' Std 8x16 Font");
-
-	ssd1289_set_font(FONT_LINUX_ACORN_8x8);
-	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_BLACK);
-	ssd1289_puts_at(15, 174, "Linux' Acorn 8x8 Font");
+	ssd1289_puts_at(15, 139, "Linux-Fonts: Std 8x16");
 
 	ssd1289_set_font(FONT_LINUX_8x8);
 	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_BLACK);
-	ssd1289_puts_at(12, 195, "LnxStd 8x8Fnt");
+	ssd1289_puts_at(15, 156, "Small 8x8 Font");
+
+
+	ssd1289_set_font(FONT_LINUX_ACORN_8x8);
+	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_BLACK);
+	ssd1289_puts_at(15, 165, "Small 8x8 Font \"Acorn\"");
+
 	
 	ssd1289_set_font(FONT_LINUX_PEARL_8x8);
 	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_BLACK);
-	ssd1289_puts_at(12, 205, "Pearl 8x8Font");
-	
-	ssd1289_set_font(FONT_LINUX_MAC_6x11);
-	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_BLACK);
-	ssd1289_puts_at(20, 225, "Mac 6x11 Font");
-	
-	
-	
-	
+	ssd1289_puts_at(15, 174, "Small 8x8 Font \"Pearl\"");
 	
 	for(;;) {
 			
@@ -144,9 +136,32 @@ void vT_display_demo(void *p) {
 
 /* run a simple console on USART1 */
 void vT_usart(void *p) {
+	char c;
+	int cmd_idx;
+	char cmd[16];
+	
 	usart1_puts("<console> $ ");
+	cmd_idx = 0;
+
 	for(;;) {
-		usart1_putc(usart1_getc());	
+		c = usart1_getc();
+		
+		if(c == '\r') {
+			cmd[cmd_idx] = '\0';
+			cmd_idx = 0;
+			//usart1_puts(cmd);
+			usart1_puts("\r\n");
+		} else {
+			if(cmd_idx == 14) {
+				usart1_puts("\r\n  error: cmd overflow.\r\n");
+				cmd_idx = 0;
+				usart1_puts("<console> $ ");
+			} else {
+				cmd[cmd_idx] = c;
+				cmd_idx++;
+				usart1_putc(c);
+			}
+		}
 	}
 }
 
@@ -175,7 +190,7 @@ int main(void){
 	ssd1289_fill(RGB_COL_BLACK);
 	ssd1289_textcon_init();
 	ssd1289_set_font_color(RGB_COL_YELLOW, RGB_COL_BLACK);
-	ssd1289_set_font(FONT_LINUX_SUN_8x16);
+	ssd1289_set_font(FONT_LINUX_8x16);
 
 	init_buttons();
     

@@ -1,78 +1,9 @@
 /* ssd1289 driver for stm32f10x (v0.2)
  * 
- * authors:
- *  (c) 2015, 2017 Nils Stec <stecdose@gmail.com>
- *  (c) 2010 poweravr from powermcu.com has written: 
- *	bresenham line drawing function,
- *	parts of initialization routine
  * 
- * changelog:
- *	2015 august	created first version of this driver
- *	2015 august	added pwm backlight control
- *	2015 august	added graphic functions
- *	2015 august	added text functions + linux 8x16-font
- *	2017 jan	first comments appeared...
- *	2017 feb	worked on text functions
- *	2017 march	replaced scrappy text functions
- *	2017 march	1st planned release
  * 
- * description:
- *	the mcu communicates via FSMC with your display.
- *	mode is 16bit 8080 data bus
- *	display color format is RGB565
- *
- *	The display will be mapped into memory at a base of 0x60000000.
- * 	The RS (register select) line used by my hardware-setup is FSMC_A19,
- *	this means we get an offset of 0x00020000.
- * 	All the bus-stuff is done by the chip's FSMC, so reading/writing
- * 	to 0x60000000 means access to the registers, r/w to 0x60020000
- * 	means access to the RAM. We don't have to deal with A19/RS by ourself.
- *
- * code-/data-size:
- *
- * hardware connections:
- *	controller: STM32F103VCT6
- *	lcd: HY32D
- *	(you'll find a circuit diagram in the source tree)
- *	LCD Pin		STM32F10x AF 	STM32F103VCT6 Pin
- * -------------------------------------------------------
- *	LCD_BLight	TIM3_CH3	PB0
  * 
- *	LCD_RD		FSMC_NOE	PD4
- *	LCD_WR		FSMC_NWE	PD5
- *	LCD_CS		FSMC_NE1	PD7
- *	LCD_RS		FSMC_A19	PE3
- * 
- *	LCD_DB0		FSMC_D0		PD14
- *	LCD_DB1		FSMC_D1		PD15
- *	LCD_DB2		FSMC_D2		PD0
- *	LCD_DB3		FSMC_D3		PD1
- *	LCD_DB4		FSMC_D4		PE7
- *	LCD_DB5		FSMC_D5		PE8
- *	LCD_DB6		FSMC_D6		PE9
- *	LCD_DB7		FSMC_D7		PE10
- *	LCD_DB10	FSMC_D8		PE11
- *	LCD_DB11	FSMC_D9		PE12
- *	LCD_DB12	FSMC_D10	PE13
- *	LCD_DB13	FSMC_D11	PE14
- *	LCD_DB14	FSMC_D12	PE15
- *	LCD_DB15	FSMC_D13	PD8
- *	LCD_DB16 	FSMC_D14	PD9
- *	LCD_DB17	FSMC_D15	PD10
- *
- *
- * TODO TODO TODO 
- *	- comment cryptic init routine, makes easier to adapt to other displays
- * 	- circle, pie, ...
- * 	- helper function to support animations
- * 	- add support for image formats: PNG, JPG, GIF for animations
- * 	- add ssd1289 driver to freertos skeleton project
- * 	- comments
- * 	- documentation
- * 	- examples + photos + videos
- * 	- font converter
- * 	- image converter
- * 	- ads7843 touchscreen code is not working
+ * see global README.md for more information.
  */
 
 #include "ssd1289.h"
