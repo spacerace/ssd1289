@@ -44,7 +44,11 @@ void vT_usart(void *p);
 void vT_led(void *p);
 
 void vT_display_demo(void *p) {
-    portTickType xDelay = 5 / portTICK_RATE_MS;
+
+	goto skip_first;
+	
+	
+    //portTickType xDelay = 5 / portTICK_RATE_MS;
 	
 	int i;
 	uint16_t x, x2, y, y2, color;
@@ -60,13 +64,14 @@ void vT_display_demo(void *p) {
 	ssd1289_rect(95, 80, 239-10, 130, RGB_COL_YELLOW);	// rect frame
 	
 	ssd1289_rect(120, 190, 239-10, 319-10, RGB_COL_GREEN);	// image frame
+	ssd1289_fill_rect(10, 190, 129-10-5, 319-20-60, RGB_COL_RED);	// text press btn a frame
 	
 	ssd1289_rect(10, 135, 239-10, 185, RGB_COL_MAGENTA);	// text demo
 	
 	ssd1289_print_image(&amiga_wb_floppy, 130, 200);
 	
 	// put 1000 random pixels
-	xDelay = 4 / portTICK_RATE_MS;
+	//xDelay = 4 / portTICK_RATE_MS;
 	for(i = 0; i < 700; i++) {
 			x = (random_xorshift32()%49)+11;
 			y = (random_xorshift32()%49)+26;
@@ -75,7 +80,7 @@ void vT_display_demo(void *p) {
 		//	vTaskDelay(xDelay);
 	}
 	
-	xDelay = 5 / portTICK_RATE_MS;
+	//xDelay = 5 / portTICK_RATE_MS;
 	for(i = 0; i < 80; i++) {
 		x = (random_xorshift32()%165)+66;
 		y = (random_xorshift32()%49)+26;
@@ -129,6 +134,105 @@ void vT_display_demo(void *p) {
 	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_BLACK);
 	ssd1289_puts_at(15, 174, "Small 8x8 Font \"Pearl\"");
 	
+	ssd1289_set_font(FONT_LINUX_ACORN_8x8);
+	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_RED);
+	ssd1289_puts_at(15, 200, "Press btn A!");
+	ssd1289_puts_at(15, 210, "Press btn A!");
+	ssd1289_puts_at(15, 220, "Press btn A!");
+	
+	
+//wait for button
+	
+	ssd1289_fill_screen(RGB_COL_BLUE);
+	ssd1289_set_font(FONT_LINUX_ACORN_8x8);
+	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_BLUE);
+	
+	ssd1289_set_cursor(0,0);
+	ssd1289_puts("Simple text-console with automatic line-wrap.\n\nCharset:\n");
+	
+	ssd1289_set_cursor(0, 5);
+	int l;
+	int fg, bg;
+	for(l = 0x20; l < 0xff; l++) {
+		//fg = random_kiss32();
+		//bg = random_kiss32();
+		//ssd1289_set_font_color(fg, bg);
+		ssd1289_putc(l);
+	}
+	
+	ssd1289_inc_cursor_y();
+	ssd1289_inc_cursor_y();
+	
+	ssd1289_puts("30x35 chars on 240x320");
+	
+
+	ssd1289_inc_cursor_y();
+	ssd1289_inc_cursor_y();
+		
+	
+	for(l = 0x20; l < 0xff; l++) {
+		fg = random_kiss32();
+		bg = random_kiss32();
+		ssd1289_set_font_color(fg, bg);
+		ssd1289_putc(l);
+		ssd1289_putc(l);
+	}
+	for(l = 0x20; l < 0xff; l++) {
+		fg = random_kiss32();
+		bg = random_kiss32();
+		ssd1289_set_font_color(fg, bg);
+		ssd1289_putc(l);
+	}
+	
+skip_first:
+
+	ssd1289_fill_screen(RGB_COL_MAGENTA);
+	ssd1289_set_font(FONT_LINUX_ACORN_8x8);
+	ssd1289_set_font_color(RGB_COL_YELLOW, RGB_COL_MAGENTA);
+	ssd1289_set_putc_delay(30);
+	ssd1289_set_cursor(0, 0);
+	ssd1289_puts("Delayed putc...");
+	
+	ssd1289_inc_cursor_y();
+	ssd1289_inc_cursor_y();
+	
+	
+	ssd1289_puts("Hehe, almost looks like a typewriter...\n\nAs long as we are not changingfont_size, we can change fontsin console mode whenever we   want.\n");
+	ssd1289_inc_cursor_y();
+	ssd1289_set_font(FONT_LINUX_PEARL_8x8);
+	ssd1289_puts("The quick brown fox jumps over");
+	ssd1289_set_font(FONT_LINUX_8x8);
+	ssd1289_puts("The quick brown fox jumps over");
+	ssd1289_set_font(FONT_LINUX_ACORN_8x8);
+	ssd1289_puts("The quick brown fox jumps over\n\n");
+	
+	ssd1289_puts("Now get rid of that delay, fast!\n\n");
+	
+	ssd1289_set_putc_delay(0);
+	ssd1289_puts("FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER");
+	ssd1289_puts("FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER FASTER\n");
+	
+	int bl;
+	int loops;
+	for(loops = 0; loops < 5; loops++) {
+		for(bl = 0; bl <= 100; bl++) {
+			ssd1289_bl_set(bl);
+			vTaskDelay(5);
+		}
+		for(bl = 100; bl > 0; bl--) {
+			ssd1289_bl_set(bl);
+			vTaskDelay(5);
+		}
+	}
+
+	for(loops = 0; loops < 30; loops++) {
+		ssd1289_bl_set(100);
+		vTaskDelay(75);
+		ssd1289_bl_set(0);
+		vTaskDelay(75);
+	}
+	ssd1289_bl_set(100);
+		
 	for(;;) {
 			
 	}
@@ -174,8 +278,10 @@ void vT_led(void *p) {
 	LED2_OFF();
 	for(;;) {
 		LED1_ON();
+		LED2_OFF();
 		vTaskDelay(xDelay_short);
 		LED1_OFF();
+		LED2_ON();
 		vTaskDelay(xDelay_long);
 		vTaskDelay(xDelay_long);
 		vTaskDelay(xDelay_long);

@@ -14,6 +14,8 @@
 
 #include "ssd1289.h"
 
+#include "../freertos/include/FreeRTOS.h"
+
 #include "fonts/linux_acorn_8x8.h"
 #include "fonts/linux_8x16.h"
 #include "fonts/linux_8x8.h"
@@ -30,7 +32,17 @@ static struct simple_textcon {
 	uint8_t *font_data;
 	int cursor_x;
 	int cursor_y;
+	uint16_t putc_delay;
 } con;
+
+
+/* this is os dependant code. replace delay function with proper
+ * delay function for your platform. If you use FreeRTOS dont change it.
+ */
+void ssd1289_set_putc_delay(uint16_t ms) {
+	con.putc_delay = ms;
+	return;
+}
 
 void ssd1289_set_font_spacing(uint16_t x, uint16_t y) {
 	con.char_spacing_x = x;
@@ -69,6 +81,8 @@ void ssd1289_textcon_init() {
 	
 	con.cursor_x = 0;
 	con.cursor_y = 0;
+	
+	con.putc_delay = 0;
 	return;
 }
 
@@ -78,7 +92,7 @@ void ssd1289_set_font(int font) {
 			con.font_data = (uint8_t *)&fontdata_acorn_8x8;
 			con.font_size_x = 8;
 			con.font_size_y = 8;			
-			con.char_spacing_x = 1;
+			con.char_spacing_x = 0;
 			con.char_spacing_y = 1;
 			break;			
 		case FONT_LINUX_8x16:
@@ -92,14 +106,14 @@ void ssd1289_set_font(int font) {
 			con.font_data = (uint8_t *)&fontdata_linux_8x8;
 			con.font_size_x = 8;
 			con.font_size_y = 8;			
-			con.char_spacing_x = 1;
+			con.char_spacing_x = 0;
 			con.char_spacing_y = 1;
 			break;	
 		case FONT_LINUX_PEARL_8x8:
 			con.font_data = (uint8_t *)&fontdata_pearl_8x8;
 			con.font_size_x = 8;
 			con.font_size_y = 8;			
-			con.char_spacing_x = 1;
+			con.char_spacing_x = 0;
 			con.char_spacing_y = 1;
 			break;
 	}
@@ -130,6 +144,18 @@ void ssd1289_get_text_cursor(int *x, int *y) {
 	return;
 }
 
+void ssd1289_inc_cursor() {
+	con.cursor_x++;
+	return;
+}
+
+void ssd1289_inc_cursor_y() {
+	con.cursor_y++;
+	con.cursor_x = 0;
+	return;		
+
+}
+
 void ssd1289_put_char_at(int x_off, int y_off, uint8_t c) {
 	int x, y;
 	int offset_in_charset;
@@ -139,6 +165,8 @@ void ssd1289_put_char_at(int x_off, int y_off, uint8_t c) {
 	uint16_t bg = con.char_bg;
 	uint16_t size_x = con.font_size_x;
 	uint16_t size_y = con.font_size_y;
+	
+
 	
 	offset_in_charset =  c * con.font_size_y;
 	
@@ -189,7 +217,17 @@ void ssd1289_putc(char c) {
 	
 	int x_off = (cursor_x * font_size_x)+(cursor_x * spacing_x);
 	
-	if(x_off > (239-font_size_x)) {
+	if(c == '\n') {
+			con.cursor_y++;
+			con.cursor_x = 0;
+			return;
+	}
+	if(c == '\r') {
+			con.cursor_x = 0;
+			return;
+	}
+	
+	if(x_off >= (241-font_size_x)) {
 		x_off = 0;
 		con.cursor_x = 0;
 		con.cursor_y++;				// increment global cursor
@@ -202,4 +240,8 @@ void ssd1289_putc(char c) {
 	ssd1289_put_char_at(x_off, y_off, c);	
 	
 	con.cursor_x++;
+	
+	
+	vTaskDelay(con.putc_delay);
+
 }

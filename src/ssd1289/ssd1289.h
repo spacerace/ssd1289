@@ -101,6 +101,9 @@ uint16_t ssd1289_get_text_bg_color();						// get background color
 void ssd1289_set_transparency(int trans);					// enable/disable transparency, args can be TRUE or FALSE
 void ssd1289_set_text_cursor(int x, int y);					// set text cursor position
 void ssd1289_get_text_cursor(int *x, int *y);				// get text cursor position
+void ssd1289_inc_cursor();
+void ssd1289_inc_cursor_y();
+void ssd1289_set_putc_delay(uint16_t ms);
 
 // image functions
 int ssd1289_print_image(tImage *image, uint16_t x_off, uint16_t y_off);	// takes rgb565 image data

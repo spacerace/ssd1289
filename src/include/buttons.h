@@ -7,7 +7,10 @@ extern void init_buttons();
  *	KEYB	PB2
  */
 
-extern int get_keyb();
+//extern int get_keyb();
+int btna_hit();
+int btnb_hit();
+void btnb_wait(); 
 
 #endif  // __BUTTONS_H__
 
