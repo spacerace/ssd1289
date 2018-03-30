@@ -3,12 +3,12 @@
 
 extern void init_buttons();
 
-/*	KEYA	PC13
- *	KEYB	PB2
+/*	KEYA/BTNA	PC13
+ *	KEYB/BTNB	PB2
  */
 
-//extern int get_keyb();
 int btna_hit();
+void btna_wait();
 int btnb_hit();
 void btnb_wait(); 
 

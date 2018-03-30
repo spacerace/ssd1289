@@ -3,7 +3,7 @@
 #include "ssd1289.h"
 
 /* image functions */
-int ssd1289_print_image(tImage *image, uint16_t x_off, uint16_t y_off) {
+int ssd1289_print_image(const tImage *image, uint16_t x_off, uint16_t y_off) {
 	int x, y;
 	uint32_t datacnt;
 	uint16_t data;

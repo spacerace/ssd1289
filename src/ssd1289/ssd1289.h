@@ -106,6 +106,6 @@ void ssd1289_inc_cursor_y();
 void ssd1289_set_putc_delay(uint16_t ms);
 
 // image functions
-int ssd1289_print_image(tImage *image, uint16_t x_off, uint16_t y_off);	// takes rgb565 image data
+int ssd1289_print_image(const tImage *image, uint16_t x_off, uint16_t y_off);	// takes rgb565 image data
 
 #endif

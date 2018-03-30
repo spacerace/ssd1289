@@ -65,6 +65,8 @@ SRCS = 	./src/system_stm32f10x.c \
 	./src/random.c \
 	./src/usart.c \
 	./src/buttons.c \
+	./src/shell.c \
+	./src/ssd1289_demo.c \
 	./src/main.c
 
 OBJS=$(SRCS:.c=.o)

@@ -5,13 +5,39 @@
 #include "leds.h"
 #include "stm32f10x.h"
 
-static int btn_state;
+static int btna_state;
+static int btna_lock;
 
 /* button A is connected to interrupt line EXTI13 */
 int btna_hit() {
-		int temp = btn_state;
-		btn_state = 0;
+		int temp = btna_state;
+		btna_state = 0;
 		return temp;
+}
+
+void btna_enable() {
+	btna_lock = 0;
+}
+
+void btna_disable() {
+	btna_lock = 1;
+}
+
+void btna_clr_status() {
+	btna_state = 0;
+}
+
+void btna_set_state() {
+	btna_state = 1;
+}
+
+void btna_wait() {
+	btna_lock = 0;
+	while(!btna_hit()) {
+		asm("nop");
+	}
+	btna_lock = 1;
+	return;
 }
 
 /* as button B is not connected to an interrupt line, this functions
@@ -29,8 +55,7 @@ void btnb_wait() {
 void EXTI15_10_IRQHandler(void) {
 	if(EXTI_GetITStatus(EXTI_Line13) != RESET) {
 		EXTI_ClearITPendingBit(EXTI_Line13);
-		btn_state = 1;
-        LED2_ON();      
+		if(!btna_lock) btna_state = 1;
 	}
 
 	return;
@@ -76,7 +101,8 @@ void init_buttons() {
 	EXTI_InitStructure.EXTI_LineCmd = ENABLE;
 	EXTI_Init(&EXTI_InitStructure);
 
-	btn_state = 0;
+	btna_state = 0;
+	btna_lock = 1;
 
 	return;
 }
