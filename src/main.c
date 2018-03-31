@@ -42,17 +42,26 @@
 extern void vT_display_demo(void *p);	// see ssd1289_demo.c
 extern void vT_led(void *p);			// see leds.c
 void vT_shell(void *p);					// calls console_main() from shell.c
+void vT_encoder(void *p);
 
 /* run a simple console on USART1 */
 void vT_shell(void *p) {
 	init_console();
 	for(;;) {
-		console_main();			
+		console_main();		
 	}
 }
 
 void vT_encoder(void *p) {
+	char temp[10];
+	ssd1289_set_font(FONT_LINUX_8x16);
+	ssd1289_set_font_color(RGB_COL_YELLOW, RGB_COL_BLACK);
 	for(;;) {
+		//ssd1289_set_text_cursor(0,0);
+		//sprintf(temp, "%d", TIM_GetCounter(TIM5));
+		//ssd1289_puts_at(0, 0, temp);		
+		
+		vTaskDelay(150);
 		
 	}
 }
@@ -68,12 +77,13 @@ int main(void){
 	ssd1289_set_font(FONT_LINUX_8x16);
 
 	init_buttons();
-	
-    
+	encoder_init();	
+	init_printf(PRINTF_OUTPUT_SSD1289 | PRINTF_OUTPUT_USART1);
+	    
 	xTaskCreate(vT_shell,   	 (const char*) "Shell Task", 256, NULL, 1, NULL);
 	xTaskCreate(vT_led,     	 (const char*) "LED Task", 48, NULL, 1, NULL);
 	//xTaskCreate(vT_display_demo, (const char*) "SSD1289_DEMO", 128, NULL, 1, NULL);
-	xTaskCreate(vt_encoder,		 (const char*) "Encoder Task", 32, NULL, 1, NULL);
+	xTaskCreate(vT_encoder,		 (const char*) "Encoder Task", 32, NULL, 1, NULL);
 	// Start RTOS scheduler
 
 	vTaskStartScheduler();
@@ -87,8 +97,9 @@ int main(void){
 }
 
 void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName) {
-// 	printf("ERROR: vApplicationStackOverflowHook(): Task \"%s\" overflowed its stack\n", pcTaskName);
-// 	fflush(stdout);
-// 	assert(false);
+	usart1_puts("ERROR: vApplicationStackOverflowHook(): Task ");
+	usart1_puts(pcTaskName);
+	usart1_puts(" overflowed its stack.\r\n");
+	//assert(false);
 }
 
