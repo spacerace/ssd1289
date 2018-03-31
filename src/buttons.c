@@ -44,7 +44,7 @@ void btna_wait() {
  * blocks. Maybe useful for GUI thread ("press button to continue...").
  */
 int btnb_hit() {
-	
+	return 0;
 }
 
 void btnb_wait() {
@@ -66,10 +66,10 @@ void init_buttons() {
 	NVIC_InitTypeDef NVIC_InitStructure;
 	EXTI_InitTypeDef EXTI_InitStructure;
 
-	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOC, ENABLE);
-
+	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_GPIOC | RCC_APB2Periph_GPIOE, ENABLE);
+	
 	// GPIO configuration
-	// A=PC13, B=PB2
+	// A=PC13, B=PB2, C=PE0
 	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_2;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
@@ -79,6 +79,12 @@ void init_buttons() {
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
 	GPIO_Init(GPIOC, &GPIO_InitStructure);
+	
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0;
+	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
+	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
+	GPIO_Init(GPIOE, &GPIO_InitStructure);
+		
 
 	// interrupt configuration
 	NVIC_PriorityGroupConfig(NVIC_PriorityGroup_1);
