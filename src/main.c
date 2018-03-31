@@ -38,8 +38,6 @@
 #include "ssd1289.h"
 #include "shell.h"
 
-
-
 extern void vT_display_demo(void *p);
 extern void vT_led(void *p);
 void vT_shell(void *p);
@@ -64,7 +62,7 @@ int main(void){
 
 	init_buttons();
     
-	xTaskCreate(vT_shell,   	 (const char*) "Shell Task", 128, NULL, 1, NULL);
+	xTaskCreate(vT_shell,   	 (const char*) "Shell Task", 256, NULL, 1, NULL);
 	xTaskCreate(vT_led,     	 (const char*) "LED Task", 48, NULL, 1, NULL);
 	xTaskCreate(vT_display_demo, (const char*) "SSD1289_DEMO", 128, NULL, 1, NULL);
 

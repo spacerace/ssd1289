@@ -8,6 +8,9 @@
 
 
 #include "image_amigawbfloppy.h"		// amiga workbench floppy picture
+#include "image_windows101.h"			// windows 1.01 bootsplash
+#include "image_windows31.h"			// windows 3.1 bootsplash
+#include "image_monkeyisland.h"			// scene from monkey island
 
 
 void vT_display_demo(void *p) {	
@@ -36,7 +39,7 @@ void vT_display_demo(void *p) {
 	//xDelay = 4 / portTICK_RATE_MS;
 	for(i = 0; i < 700; i++) {
 			x = (random_xorshift32()%49)+11;
-			y = (random_xorshift32()%49)+26;
+	 		y = (random_xorshift32()%49)+26;
 			color = random_xorshift32();
 			ssd1289_setpx(x, y, color);
 			//vTaskDelay(xDelay);
@@ -152,22 +155,27 @@ void vT_display_demo(void *p) {
 	for(loops = 0; loops < 4; loops++) {
 		for(bl = 0; bl <= 100; bl++) {
 			ssd1289_bl_set(bl);
-			vTaskDelay(5);
+			vTaskDelay(3);
 		}
 		for(bl = 100; bl > 0; bl--) {
 			ssd1289_bl_set(bl);
-			vTaskDelay(5);
+			vTaskDelay(3);
 		}
 	}
 
 	for(loops = 0; loops < 20; loops++) {
 		ssd1289_bl_set(100);
-		vTaskDelay(75);
+		vTaskDelay(50);
 		ssd1289_bl_set(0);
-		vTaskDelay(75);
+		vTaskDelay(50);
 	}
 	ssd1289_bl_set(100);
-		
+	
+	btna_wait();
+	
+	ssd1289_print_image(&win31, 0, 0);
+	
+	
 	for(;;) {
 			
 	}
