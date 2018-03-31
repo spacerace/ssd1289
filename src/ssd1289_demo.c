@@ -112,7 +112,7 @@ void vT_display_demo(void *p) {
 	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_BLUE);
 	ssd1289_set_cursor(0, 0);
 	ssd1289_set_cursor(0,0);
-	ssd1289_puts("Simple text-console with automatic line-wrap.\n\nCharset:\n");
+	ssd1289_puts("\rSimple text-console with automatic line-wrap.\n\nCharset:\n");
 	
 	ssd1289_set_cursor(0, 5);
 	int l;
@@ -174,6 +174,8 @@ void vT_display_demo(void *p) {
 	btna_wait();
 	
 	ssd1289_print_image(&win31, 0, 0);
+	
+	btna_wait();
 	
 	
 	for(;;) {

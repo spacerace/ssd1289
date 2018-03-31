@@ -31,6 +31,7 @@
 #include "usart.h"
 #include "leds.h"
 #include "buttons.h"
+#include "encoder.h"
 #include "freertos/include/FreeRTOS.h"
 #include "freertos/include/task.h"
 #include "printf.h"						// very small printf-implementation. see printf.c
@@ -38,15 +39,21 @@
 #include "ssd1289.h"
 #include "shell.h"
 
-extern void vT_display_demo(void *p);
-extern void vT_led(void *p);
-void vT_shell(void *p);
+extern void vT_display_demo(void *p);	// see ssd1289_demo.c
+extern void vT_led(void *p);			// see leds.c
+void vT_shell(void *p);					// calls console_main() from shell.c
 
 /* run a simple console on USART1 */
 void vT_shell(void *p) {
 	init_console();
 	for(;;) {
 		console_main();			
+	}
+}
+
+void vT_encoder(void *p) {
+	for(;;) {
+		
 	}
 }
 
@@ -61,11 +68,12 @@ int main(void){
 	ssd1289_set_font(FONT_LINUX_8x16);
 
 	init_buttons();
+	
     
 	xTaskCreate(vT_shell,   	 (const char*) "Shell Task", 256, NULL, 1, NULL);
 	xTaskCreate(vT_led,     	 (const char*) "LED Task", 48, NULL, 1, NULL);
-	xTaskCreate(vT_display_demo, (const char*) "SSD1289_DEMO", 128, NULL, 1, NULL);
-
+	//xTaskCreate(vT_display_demo, (const char*) "SSD1289_DEMO", 128, NULL, 1, NULL);
+	xTaskCreate(vt_encoder,		 (const char*) "Encoder Task", 32, NULL, 1, NULL);
 	// Start RTOS scheduler
 
 	vTaskStartScheduler();
