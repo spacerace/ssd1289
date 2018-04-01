@@ -15,6 +15,10 @@ static void ssd1289_controller_init();
 static void ssd1289_write_reg(uint8_t reg_addr, uint16_t reg_value);
 static uint16_t ssd1289_read_reg(uint8_t reg_addr);
 
+/* global variables, needed by driver, can be used by user */
+int ssd1289_display_size_x;
+int ssd1289_display_size_y;
+
 int ssd1289_init() { 
 	uint16_t lcd_id;
 
@@ -30,6 +34,9 @@ int ssd1289_init() {
 		ssd1289_bl_set(100);
 		return SSD1289_FOUND;
  	}
+ 	
+ 	ssd1289_display_size_x = 240;
+ 	ssd1289_display_size_y = 320;
 
  	return SSD1289_NOT_FOUND;
 }
@@ -198,7 +205,7 @@ void ssd1289_bl_set(int percent) {
 	
 	oc_bl.TIM_OCMode = TIM_OCMode_PWM1;
 	oc_bl.TIM_OutputState = TIM_OutputState_Enable;
-	oc_bl.TIM_Pulse = percent*10;	// percent*10
+	oc_bl.TIM_Pulse = percent*10;
 	oc_bl.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OC2Init(TIM3, &oc_bl);
 

@@ -6,18 +6,63 @@
 #include "random.h"						// small, pseudo random
 #include "ssd1289.h"
 
-
 #include "image_amigawbfloppy.h"		// amiga workbench floppy picture
 #include "image_windows101.h"			// windows 1.01 bootsplash
 #include "image_windows31.h"			// windows 3.1 bootsplash
 #include "image_monkeyisland.h"			// scene from monkey island
 
+void demo_screen0();		// main demo screen
+void demo_screen1();		// text console demo
+void demo_screen2();		// images demo
+void demo_screen3();		// ellipse demo
+void demo_blacklight0();	// backlight flash/fade demo
 
 void vT_display_demo(void *p) {	
-	int i;
-	uint16_t x, x2, y, y2, color;
-	//portTickType xDelay = 5 / portTICK_RATE_MS;
+	demo_screen3();
+	for(;;) {
+		asm("nop");
+	}
+}
+	 
+void demo_screen4() {
+		int r0, r1, x, y;
+		uint16_t color;
+		
+		ssd1289_clear();
+		ssd1289_set_text_cursor(0,0);
+		ssd1289_set_font_color(RGB_COL_YELLOW, RGB_COL_BLACK);
+		ssd1289_puts("test");
+		
+		while(btna_hit()) {
+			asm("nop");
+		}
+		
+		ssd1289_puts("text");
 	
+		for(;;) {
+			asm("nop");
+		}
+}
+
+void demo_screen3() {
+	int r0, r1, x, y;
+	uint16_t color;
+	while(1) {
+		x = (random_kiss32()%240);
+		y = (random_kiss32()%320);
+		r0 = (random_kiss32()%80);
+		r1 = (random_kiss32()%80);
+		color = (uint16_t)(random_kiss32()&0xfffff);
+		ssd1289_ellipse(x, y, r0, r1, color);
+	}
+	return;
+}	
+
+void demo_screen0() {
+	int xpos, ypos, rad, x, x2, y, y2, i;
+	uint16_t color;
+	
+	ssd1289_clear();
 	ssd1289_set_text_cursor(0, 0);
 	ssd1289_set_font_color(RGB_COL_CYAN, RGB_COL_BLACK);
 	ssd1289_puts(" >  SSD1289 DRIVER DEMO  <");
@@ -106,16 +151,18 @@ void vT_display_demo(void *p) {
 	ssd1289_puts_at(15, 210, "Press btn A!");
 	ssd1289_puts_at(15, 220, "Press btn A!");
 	
-	int xpos, ypos, rad;
 	xpos = 42;
 	ypos = 278;
-	
 	for(rad = 1; rad <= 30; rad++) {
 		ssd1289_circle(xpos, ypos, rad, random_kiss32());
 		ssd1289_circle(xpos+41, ypos, rad, random_kiss32());
 	}
 	
-	btna_wait();
+}
+
+void demo_screen1() {
+	int l;
+	int fg, bg;
 	
 	ssd1289_fill_screen(RGB_COL_BLUE);
 	ssd1289_set_font(FONT_LINUX_ACORN_8x8);
@@ -125,8 +172,6 @@ void vT_display_demo(void *p) {
 	ssd1289_puts("\rSimple text-console with automatic line-wrap.\n\nCharset:\n");
 	
 	ssd1289_set_cursor(0, 5);
-	int l;
-	int fg, bg;
 	for(l = 0x20; l < 0xff; l++) {
 		//fg = random_kiss32();
 		//bg = random_kiss32();
@@ -138,11 +183,9 @@ void vT_display_demo(void *p) {
 	ssd1289_inc_cursor_y();
 	
 	ssd1289_puts("30x35 chars on 240x320");
-	
 
 	ssd1289_inc_cursor_y();
 	ssd1289_inc_cursor_y();
-		
 	
 	for(l = 0x20; l < 0xff; l++) {
 		fg = random_kiss32();
@@ -157,9 +200,10 @@ void vT_display_demo(void *p) {
 		ssd1289_set_font_color(fg, bg);
 		ssd1289_putc(l);
 	}
-	
-	btna_wait();
+	return;
+}
 
+void demo_blacklight0() {
 	int bl;
 	int loops;
 	for(loops = 0; loops < 4; loops++) {
@@ -181,18 +225,13 @@ void vT_display_demo(void *p) {
 	}
 	ssd1289_bl_set(100);
 	
-	btna_wait();
-	
+	return;
+}
+
+void demo_screen2() {
 	//ssd1289_print_image(&win31, 0, 0);
 	//ssd1289_print_image(&mi, 0, 0);
-	
-	lcd_ellipse(120, 160, 40, 60, RGB_COL_YELLOW);
-	
-	btna_wait();
-	
-	
-	for(;;) {
-			
-	}
-}
+	return;
+}	
+
 

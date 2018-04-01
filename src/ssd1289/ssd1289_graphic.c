@@ -2,6 +2,9 @@
 
 #include "ssd1289.h"
 
+extern int ssd1289_display_size_x;
+extern int ssd1289_display_size_y;
+
 /* image functions */
 int ssd1289_print_image(const tImage *image, uint16_t x_off, uint16_t y_off) {
 	int x, y;
@@ -23,39 +26,27 @@ int ssd1289_print_image(const tImage *image, uint16_t x_off, uint16_t y_off) {
 
 void ssd1289_fill_screen(uint16_t color) {
 	int i;
-	
 	ssd1289_set_cursor(0,0);
 	for(i = 0; i < 76800; i++) LCD_RAM = color;
-	
+	return;
 }
 
 uint16_t ssd1289_getpx(uint16_t x, uint16_t y) {
 	ssd1289_set_cursor(x, y);
-
 	return LCD_RAM;
 }
 
 void ssd1289_setpx(uint16_t x, uint16_t y, uint16_t color) {
-	if((x > 239) || (y > 319)) return;
-
+	//if((x >= ssd1289_display_size_x) || (y >= ssd1289_display_size_y)) return;
 	ssd1289_set_cursor(x,y);
 	LCD_RAM = color;
-
 	return;
 }
 
 /* fucking slow */
 void ssd1289_invert_screen() {
-	uint16_t color;
-	int x,y;
-	
-	for(y = 0; y < 319; y++) {
-		for(x = 0; x < 239; x++) {
-			color = ssd1289_getpx(x,y);
-			color ^= 0xffff;
-			ssd1289_setpx(x, y, color);
-		}
-	}
+	ssd1289_invert_area(0, 0, ssd1289_display_size_x-1, ssd1289_display_size_y-1);
+	return;
 }
 
 void ssd1289_invert_area(int x1, int y1, int x2, int y2) {
@@ -69,6 +60,8 @@ void ssd1289_invert_area(int x1, int y1, int x2, int y2) {
 			ssd1289_setpx(x, y, color);
 		}
 	}	
+	
+	return;
 }
 
 void ssd1289_lineh(int x, int y, int len, uint16_t color) {
@@ -175,7 +168,6 @@ void ssd1289_circle(int x, int y, int radius, uint16_t color) {
 	p = 3 - (radius<<1);
 	
 	while (xc <= yc){ 
-		
 		ssd1289_setpx(x + xc, y + yc, color); 
 		ssd1289_setpx(x + xc, y - yc, color); 
 		ssd1289_setpx(x - xc, y + yc, color); 
@@ -192,34 +184,20 @@ void ssd1289_circle(int x, int y, int radius, uint16_t color) {
 	}
 	
 	return;
-} 
-
-void lcd_hline(unsigned char x1, unsigned char x2, unsigned char y, uint16_t color) {
-//	if (x1>lcd_pixelx) x1=lcd_pixelx;
-//	if (x2>lcd_pixelx) x2=lcd_pixelx;
-//	if (y<lcd_pixely) {
-		for (unsigned char i=x1; i<=x2; i++) {
-			//lcd_putpixel(i,y);
-			ssd1289_setpx(i, y, color);
-		}
-//	}
 }
 
-/*************************************************************************
+void ssd1289_fill_circle(int x, int y, int radius, uint16_t color) {
+		ssd1289_ellipse(x, y, radius, radius, color);
+}
+
+/********************************************************
  * Draw an ellipse
- * Color & fill mode supported
- *  lcd_color = (1,0,-1)
- *  lcd_fill  = (0/1)
- *
  * see: "glcd.c" for Nokia 6100 by Hagen Reddmann
- *
  * enhanced version by oog:
- *  print lines just once to avoid XOR-draw mode hazard
-*/
-
-void lcd_ellipse(unsigned char x, unsigned char y, unsigned char rx, unsigned char ry, uint16_t color) {
-
-	if ((rx == 0) | (ry == 0)) {return;}
+ *  print lines just once to avoid XOR-draw mode hazard 
+ */
+void ssd1289_ellipse(unsigned char x, unsigned char y, unsigned char rx, unsigned char ry, uint16_t color) {
+	if ((rx == 0) | (ry == 0)) return;
 
 	int16_t aa = rx * rx;
 	int16_t bb = ry * ry;
@@ -245,21 +223,25 @@ void lcd_ellipse(unsigned char x, unsigned char y, unsigned char rx, unsigned ch
 	ye = y;
 	
 	
-	while (cr >= ir)
-	{
-		if (ys!=ys0) lcd_hline(xs, xe, ys, color);
+	while(cr >= ir) {
+		if(ys!=ys0) {
+			//lcd_hline(xs, xe, ys, color);
+			//        x1  x2  y
+			ssd1289_lineh(xs, ys, (xe-xs), color);
+		}
 		ys0=ys;
-		if (ys != ye)
-		{
-			if (ye!=ye0) lcd_hline(xs, xe, ye, color);
+		if(ys != ye) {
+			if (ye!=ye0) {
+				//lcd_hline(xs, xe, ye, color);
+				ssd1289_lineh(xs, ye, (xe-xs), color);
+			}
 			ye0=ye;
 		}
 		ys--;
 		ye++;
 		ir += aa;
 		er += ir;
-		if (2 * er > cr)
-		{
+		if (2 * er > cr) {
 			er -= cr;
 			cr -= bb;
 			xs++;
@@ -267,7 +249,7 @@ void lcd_ellipse(unsigned char x, unsigned char y, unsigned char rx, unsigned ch
 		}
 	}
 	
-		ysl0=ys0;
+	ysl0=ys0;
 	yel0=ye0;
 	
 	cr = aa >> 1;
@@ -283,19 +265,24 @@ void lcd_ellipse(unsigned char x, unsigned char y, unsigned char rx, unsigned ch
 	ye = y;
 	ye = ye + ry;
 	
-	while (ir <= cr)
-	{
-		if (((ys!=ys0) && (ys!=ysl0))) lcd_hline(xs, xe, ys, color);
+	while (ir <= cr) {
+		if (((ys!=ys0) && (ys!=ysl0))) {
+			//lcd_hline(xs, xe, ys, color);
+			//        x1  x2  y
+			ssd1289_lineh(xs, ys, (xe-xs), color);
+		}
 		ys0=ys;
-		if (ys != ye)
-		{
-			if (((ye!=ye0) && (ye!=yel0))) lcd_hline(xs, xe, ye, color);
+		if (ys != ye) {
+			if (((ye!=ye0) && (ye!=yel0))) {
+				//lcd_hline(xs, xe, ye, color);
+				//        x1  x2  y
+				ssd1289_lineh(xs, ye, (xe-xs), color);
+			}
 			ye0=ye;
 		}
 		ir += bb;
 		er += ir;
-		if (2 * er > cr)
-		{
+		if (2 * er > cr) {
 			er -= cr;
 			cr -= aa;
 			ys++;

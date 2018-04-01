@@ -78,7 +78,7 @@ int main(void){
 	    
 	xTaskCreate(vT_shell,   	 (const char*) "Shell Task", 256, NULL, 1, NULL);
 	xTaskCreate(vT_led,     	 (const char*) "LED Task", 48, NULL, 1, NULL);
-	xTaskCreate(vT_display_demo, (const char*) "SSD1289_DEMO", 128, NULL, 1, NULL);
+	xTaskCreate(vT_display_demo, (const char*) "SSD1289_DEMO", 256, NULL, 1, NULL);
 	xTaskCreate(vT_encoder,		 (const char*) "Encoder Task", 32, NULL, 1, NULL);
 	// Start RTOS scheduler
 

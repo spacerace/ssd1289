@@ -84,6 +84,10 @@ void ssd1289_fill_rect(int x1, int y1, int x2, int y2, uint16_t color);	// recta
 void ssd1289_invert_area(int x1, int y1, int x2, int y2);				// read the pixels of an area and draw them inverted
 void ssd1289_invert_screen();											// invert the whole screen
 void ssd1289_circle(int x, int y, int radius, uint16_t color);			// draw a circle
+void ssd1289_fill_circle(int x, int y, int radius, uint16_t color);
+void ssd1289_ellipse(unsigned char x, unsigned char y, unsigned char rx, unsigned char ry, uint16_t color);
+
+
 
 // text functions
 void ssd1289_textcon_init();								// always call this first, it sets up your console
