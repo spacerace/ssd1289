@@ -56,17 +56,8 @@ void vT_encoder(void *p) {
 	ssd1289_set_font(FONT_LINUX_8x16);
 	ssd1289_set_font_color(RGB_COL_YELLOW, RGB_COL_BLACK);
 	ssd1289_set_text_cursor(0,0);
-	ssd1289_puts("encoder");
 	
 	for(;;) {
-		//ssd1289_set_text_cursor(0,0);
-		//ssd1289_bl_set((int)TIM_GetCounter(TIM2));
-		
-		//ssd1289_set_text_cursor(0,0);
-		//sprintf(temp, "%d", TIM_GetCounter(TIM5));
-		//ssd1289_puts_at(0, 0, temp);		
-		
-		//vTaskDelay(150);
 		
 	}
 }
@@ -87,8 +78,8 @@ int main(void){
 	    
 	xTaskCreate(vT_shell,   	 (const char*) "Shell Task", 256, NULL, 1, NULL);
 	xTaskCreate(vT_led,     	 (const char*) "LED Task", 48, NULL, 1, NULL);
-	//xTaskCreate(vT_display_demo, (const char*) "SSD1289_DEMO", 128, NULL, 1, NULL);
-	xTaskCreate(vT_encoder,		 (const char*) "Encoder Task", 128, NULL, 1, NULL);
+	xTaskCreate(vT_display_demo, (const char*) "SSD1289_DEMO", 128, NULL, 1, NULL);
+	xTaskCreate(vT_encoder,		 (const char*) "Encoder Task", 32, NULL, 1, NULL);
 	// Start RTOS scheduler
 
 	vTaskStartScheduler();
