@@ -29,7 +29,8 @@ void vT_display_demo(void *p) {
 	ssd1289_rect(95, 80, 239-10, 130, RGB_COL_YELLOW);				// rect frame
 	
 	ssd1289_rect(120, 190, 239-10, 319-10, RGB_COL_GREEN);			// image frame
-	ssd1289_fill_rect(10, 190, 129-10-5, 319-20-60, RGB_COL_RED);	// text press btn a frame
+	ssd1289_fill_rect(10, 190, 129-10-5, 319-20-60, RGB_COL_RED);	// text "press btn a" frame
+	ssd1289_rect(10, 320-80+5, 114, 309, RGB_COL_YELLOW);			// circle frame
 	
 	ssd1289_rect(10, 135, 239-10, 185, RGB_COL_MAGENTA);			// text demo
 	
@@ -105,6 +106,15 @@ void vT_display_demo(void *p) {
 	ssd1289_puts_at(15, 210, "Press btn A!");
 	ssd1289_puts_at(15, 220, "Press btn A!");
 	
+	int xpos, ypos, rad;
+	xpos = 42;
+	ypos = 278;
+	
+	for(rad = 1; rad <= 30; rad++) {
+		ssd1289_circle(xpos, ypos, rad, random_kiss32());
+		ssd1289_circle(xpos+41, ypos, rad, random_kiss32());
+	}
+	
 	btna_wait();
 	
 	ssd1289_fill_screen(RGB_COL_BLUE);
@@ -173,7 +183,10 @@ void vT_display_demo(void *p) {
 	
 	btna_wait();
 	
-	ssd1289_print_image(&win31, 0, 0);
+	//ssd1289_print_image(&win31, 0, 0);
+	//ssd1289_print_image(&mi, 0, 0);
+	
+	lcd_ellipse(120, 160, 40, 60, RGB_COL_YELLOW);
 	
 	btna_wait();
 	

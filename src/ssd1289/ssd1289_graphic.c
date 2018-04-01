@@ -194,4 +194,115 @@ void ssd1289_circle(int x, int y, int radius, uint16_t color) {
 	return;
 } 
 
+void lcd_hline(unsigned char x1, unsigned char x2, unsigned char y, uint16_t color) {
+//	if (x1>lcd_pixelx) x1=lcd_pixelx;
+//	if (x2>lcd_pixelx) x2=lcd_pixelx;
+//	if (y<lcd_pixely) {
+		for (unsigned char i=x1; i<=x2; i++) {
+			//lcd_putpixel(i,y);
+			ssd1289_setpx(i, y, color);
+		}
+//	}
+}
+
+/*************************************************************************
+ * Draw an ellipse
+ * Color & fill mode supported
+ *  lcd_color = (1,0,-1)
+ *  lcd_fill  = (0/1)
+ *
+ * see: "glcd.c" for Nokia 6100 by Hagen Reddmann
+ *
+ * enhanced version by oog:
+ *  print lines just once to avoid XOR-draw mode hazard
+*/
+
+void lcd_ellipse(unsigned char x, unsigned char y, unsigned char rx, unsigned char ry, uint16_t color) {
+
+	if ((rx == 0) | (ry == 0)) {return;}
+
+	int16_t aa = rx * rx;
+	int16_t bb = ry * ry;
+	int32_t er, cr, ir;
+	int16_t ys,ye,xs,xe;
+
+	// remember last y coordinates
+	// avoid double print of lines
+	// (no blank lines in XOR mode)
+	int16_t ys0=0, ye0=0;
+	int16_t ysl0=0, yel0=0;
+
+	cr = bb >> 1;
+	cr = cr * (rx + rx -1);
+	ir = aa >> 1;
+	ir = -ir;
+	er = 0;
+	xs = x;
+	xs = xs - rx;
+	xe = x;
+	xe = xe + rx;
+	ys = y;
+	ye = y;
+	
+	
+	while (cr >= ir)
+	{
+		if (ys!=ys0) lcd_hline(xs, xe, ys, color);
+		ys0=ys;
+		if (ys != ye)
+		{
+			if (ye!=ye0) lcd_hline(xs, xe, ye, color);
+			ye0=ye;
+		}
+		ys--;
+		ye++;
+		ir += aa;
+		er += ir;
+		if (2 * er > cr)
+		{
+			er -= cr;
+			cr -= bb;
+			xs++;
+			xe--;
+		}
+	}
+	
+		ysl0=ys0;
+	yel0=ye0;
+	
+	cr = aa >> 1;
+	cr = cr * (ry + ry -1);
+	ir = bb >> 1;
+	ir = -ir;
+	er = 0;
+
+	xs = x;
+	xe = x;
+	ys = y;
+	ys = ys - ry;
+	ye = y;
+	ye = ye + ry;
+	
+	while (ir <= cr)
+	{
+		if (((ys!=ys0) && (ys!=ysl0))) lcd_hline(xs, xe, ys, color);
+		ys0=ys;
+		if (ys != ye)
+		{
+			if (((ye!=ye0) && (ye!=yel0))) lcd_hline(xs, xe, ye, color);
+			ye0=ye;
+		}
+		ir += bb;
+		er += ir;
+		if (2 * er > cr)
+		{
+			er -= cr;
+			cr -= aa;
+			ys++;
+			ye--;
+		}
+		xs--;
+		xe++;
+		}
+}
 
