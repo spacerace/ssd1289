@@ -114,13 +114,13 @@ void ssd1289_line(int x1, int y1, int x2, int y2, uint16_t color) {
 	int x, y, dx, dy, Dx, Dy, e, i;
 
 	// lineh and linev are faster than this more complicated line function
-	if(y1 == y2)	// Horizontal
+	if(y1 == y2)	// horizontal
 	{
 		ssd1289_lineh(x1, y1, x2-x1, color);
 		return;
 	}
 	
-	if(x1 == x2)	// Vertikal
+	if(x1 == x2)	// vertical
 	{
 		ssd1289_linev(x1, y1, y2-y1, color);
 		return;
@@ -165,4 +165,33 @@ void ssd1289_line(int x1, int y1, int x2, int y2, uint16_t color) {
 		}
 	}
 }
+
+
+void ssd1289_circle(int x, int y, int radius, uint16_t color) { 
+	int xc = 0; 
+	int yc;
+	int p;
+	yc=radius;
+	p = 3 - (radius<<1);
+	
+	while (xc <= yc){ 
+		
+		ssd1289_setpx(x + xc, y + yc, color); 
+		ssd1289_setpx(x + xc, y - yc, color); 
+		ssd1289_setpx(x - xc, y + yc, color); 
+		ssd1289_setpx(x - xc, y - yc, color); 
+		ssd1289_setpx(x + yc, y + xc, color); 
+		ssd1289_setpx(x + yc, y - xc, color); 
+		ssd1289_setpx(x - yc, y + xc, color); 
+		ssd1289_setpx(x - yc, y - xc, color); 
+		if (p < 0) {
+			p += (xc++ << 2) + 6; 
+		} else {
+			p += ((xc++ - yc--)<<2) + 10; 
+		} 
+	}
+	
+	return;
+} 
+
 
