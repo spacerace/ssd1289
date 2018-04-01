@@ -85,6 +85,13 @@ I didn't try, but I estimate the smallest possible configuration to be:
          3428b - NOT EVEN 3.5k
          
 # Speed issues
+The connection type used by my display is 8080-bus. This isn't the 
+slowest - but on an 72MHz STM32 you can see the whole screen updating.
+I assume there are a few spots in code to improve speed, but there
+can't be done much.
+It is fast enough when only changing a few parts of the screen (ex.:
+you won't see flickering while updating a small clock-string), but
+a fill_screen takes a lot. Maybe 1/5th of a second.
 
 # Hardware connections:
 controller: STM32F103VCT6, lcd: HY32D
