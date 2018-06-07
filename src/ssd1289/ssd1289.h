@@ -62,49 +62,53 @@ int ssd1289_init();
 #define ssd1289_clear()		ssd1289_fill_screen(LCD_CLEAR_COLOR)	// clear() and fill() are the same as fill_screen()
 #define ssd1289_fill(color)	ssd1289_fill_screen(color);
 void ssd1289_fill_screen(uint16_t color);
-void ssd1289_set_cursor(uint16_t x, uint16_t y);					// set pixel cursor
+void ssd1289_set_cursor(uint16_t x, uint16_t y);			// set pixel cursor
 
 // pixel functions
-void ssd1289_setpx(uint16_t x, uint16_t y, uint16_t color);			// draw a pixel
-uint16_t ssd1289_getpx(uint16_t x, uint16_t y);						// read a pixel
+void ssd1289_setpx(uint16_t x, uint16_t y, uint16_t color);		// draw a pixel
+uint16_t ssd1289_getpx(uint16_t x, uint16_t y);				// read a pixel
 
 // backlight functions
-void ssd1289_bl_init();					// initialize backlight
-void ssd1289_bl_set(int percent);		// set backlight value
+void ssd1289_bl_init();			// initialize backlight
+void ssd1289_bl_set(int percent);	// set backlight value
+int  ssd1289_bl_get();			// get backlight value
 
 // touchscreen functions
-void init_ads7843();					// initialize touchscreen controller
+void init_ads7843();			// initialize touchscreen controller
+
+// color conversion
+uint16_t rgb888_to_rgb565(uint8_t r, uint8_t g, uint8_t b);		// takes R, G and B, returns color for display
 
 // graphic functions
-void ssd1289_line(int x1, int y1, int x2, int y2, uint16_t color);		// bresenham line, slow, for H/V lines see lineh() and linev()
-void ssd1289_lineh(int x, int y, int len, uint16_t color);				// line horizontal, faster than ssd1289_line()
-void ssd1289_linev(int x, int y, int len, uint16_t color);				// line vertical, faster than ssd1289_line()
-void ssd1289_rect(int x1, int y1, int x2, int y2, uint16_t color);		// rectangle, also called box
+void ssd1289_line(int x1, int y1, int x2, int y2, uint16_t color);	// bresenham line, slow, for H/V lines see lineh() and linev()
+void ssd1289_lineh(int x, int y, int len, uint16_t color);		// line horizontal, faster than ssd1289_line()
+void ssd1289_linev(int x, int y, int len, uint16_t color);		// line vertical, faster than ssd1289_line()
+void ssd1289_rect(int x1, int y1, int x2, int y2, uint16_t color);	// rectangle, also called box
 void ssd1289_fill_rect(int x1, int y1, int x2, int y2, uint16_t color);	// rectangle filled, also called box_filled
-void ssd1289_invert_area(int x1, int y1, int x2, int y2);				// read the pixels of an area and draw them inverted
-void ssd1289_invert_screen();											// invert the whole screen
-void ssd1289_circle(int x, int y, int radius, uint16_t color);			// draw a circle
+void ssd1289_invert_area(int x1, int y1, int x2, int y2);		// read the pixels of an area and draw them inverted
+void ssd1289_invert_screen();						// invert the whole screen
+void ssd1289_circle(int x, int y, int radius, uint16_t color);		// draw a circle
 void ssd1289_fill_circle(int x, int y, int radius, uint16_t color);
 void ssd1289_ellipse(unsigned char x, unsigned char y, unsigned char rx, unsigned char ry, uint16_t color);
 
 
 
 // text functions
-void ssd1289_textcon_init();								// always call this first, it sets up your console
-void ssd1289_set_font(int font);							// call this to change font, only 1 implemented at the moment
-void ssd1289_set_font_spacing(uint16_t x, uint16_t y);		// set space between chars
-void ssd1289_put_char_at(int x_off, int y_off, uint8_t c);	// print a single char at an exact position
-void ssd1289_puts_at(int x_off, int y_off, char *str);		// print a string at an exact position
-void ssd1289_putc(char c);									// print a single char at text cursor position
-void ssd1289_puts(char *str);								// print a string at text cursor position
-void ssd1289_set_font_color(int fg, int bg);			    // set font color, foreground and background
+void ssd1289_textcon_init();						// always call this first, it sets up your console
+void ssd1289_set_font(int font);					// call this to change font, only 1 implemented at the moment
+void ssd1289_set_font_spacing(uint16_t x, uint16_t y);			// set space between chars
+void ssd1289_put_char_at(int x_off, int y_off, uint8_t c);		// print a single char at an exact position
+void ssd1289_puts_at(int x_off, int y_off, char *str);			// print a string at an exact position
+void ssd1289_putc(char c);						// print a single char at text cursor position
+void ssd1289_puts(char *str);						// print a string at text cursor position
+void ssd1289_set_font_color(int fg, int bg);			    	// set font color, foreground and background
 void ssd1289_get_font_color(int *fg, int *bg);				// get font color, fg and bg
 void ssd1289_set_text_fg_color(uint16_t color);				// set foreground color
 void ssd1289_set_text_bg_color(uint16_t color);				// set background color
-uint16_t ssd1289_get_text_fg_color();						// get foreground color
-uint16_t ssd1289_get_text_bg_color();						// get background color
-void ssd1289_set_transparency(int trans);					// enable/disable transparency, args can be TRUE or FALSE
-void ssd1289_set_text_cursor(int x, int y);					// set text cursor position
+uint16_t ssd1289_get_text_fg_color();					// get foreground color
+uint16_t ssd1289_get_text_bg_color();					// get background color
+void ssd1289_set_transparency(int trans);				// enable/disable transparency, args can be TRUE or FALSE
+void ssd1289_set_text_cursor(int x, int y);				// set text cursor position
 void ssd1289_get_text_cursor(int *x, int *y);				// get text cursor position
 void ssd1289_inc_cursor();
 void ssd1289_inc_cursor_y();

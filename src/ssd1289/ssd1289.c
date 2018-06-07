@@ -18,6 +18,7 @@ static uint16_t ssd1289_read_reg(uint8_t reg_addr);
 /* global variables, needed by driver, can be used by user */
 int ssd1289_display_size_x;
 int ssd1289_display_size_y;
+static int bl;
 
 int ssd1289_init() { 
 	uint16_t lcd_id;
@@ -209,7 +210,13 @@ void ssd1289_bl_set(int percent) {
 	oc_bl.TIM_OCPolarity = TIM_OCPolarity_High;
 	TIM_OC2Init(TIM3, &oc_bl);
 
+	bl = percent;
+
 	return;
+}
+
+int ssd1289_bl_get() {
+	return bl;
 }
 
 /* backlight initialization */

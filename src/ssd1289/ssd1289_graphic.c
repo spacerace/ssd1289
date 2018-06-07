@@ -5,6 +5,21 @@
 extern int ssd1289_display_size_x;
 extern int ssd1289_display_size_y;
 
+uint16_t rgb888_to_rgb565(uint8_t r, uint8_t g, uint8_t b) {
+	uint16_t val;
+	r = (r >> 3)&0x1f;
+	g = (g >> 2)&0x2f;
+	b = (b >> 3)&0x1f;
+     
+	val = (r << 11);
+	val |= (g << 5);
+	val |= b;
+	
+	return val;
+}
+
+
+
 /* image functions */
 int ssd1289_print_image(const tImage *image, uint16_t x_off, uint16_t y_off) {
 	int x, y;
