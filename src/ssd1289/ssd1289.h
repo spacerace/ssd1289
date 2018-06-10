@@ -78,7 +78,7 @@ void init_ads7843();			// initialize touchscreen controller
 
 // color conversion
 uint16_t rgb888_to_rgb565(uint8_t r, uint8_t g, uint8_t b);		// takes R, G and B, returns color for display
-
+#define LCD_COLOR rgb888_to_rgb565
 // graphic functions
 void ssd1289_line(int x1, int y1, int x2, int y2, uint16_t color);	// bresenham line, slow, for H/V lines see lineh() and linev()
 void ssd1289_lineh(int x, int y, int len, uint16_t color);		// line horizontal, faster than ssd1289_line()

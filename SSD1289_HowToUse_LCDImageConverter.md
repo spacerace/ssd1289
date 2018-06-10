@@ -36,4 +36,4 @@ $ ./release/linux/output/lcd-image-converter
 
 If you want to install it system-wide, you could do:
 
-$ sudo cp release/linux/output/lcd-image-converter /usr/src/linux
+$ sudo cp release/linux/output/lcd-image-converter /usr/bin/

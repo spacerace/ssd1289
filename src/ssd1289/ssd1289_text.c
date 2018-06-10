@@ -242,6 +242,6 @@ void ssd1289_putc(char c) {
 	con.cursor_x++;
 	
 	
-	vTaskDelay(con.putc_delay);
+// 	vTaskDelay(con.putc_delay);
 
 }

@@ -155,11 +155,11 @@ void SDIO_IRQHandler(void) {
 /*void PPP_IRQHandler(void)
 {
 }*/
-void TIM2_IRQHandler(void)
-{
+// void TIM2_IRQHandler(void)
+// {
 // 	static uint32_t tim2_ticks = 0;
 // 	tim2_ticks++;
-}
+// }
 /**
   * @}
   */

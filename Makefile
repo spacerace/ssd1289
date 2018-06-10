@@ -49,7 +49,6 @@ SRCS = 	./src/system_stm32f10x.c \
 	./src/freertos/event_groups.c \
 	./src/freertos/heap_1.c \
 	./src/freertos/list.c \
-	./src/freertos/port.c \
 	./src/freertos/queue.c \
 	./src/freertos/tasks.c \
 	./src/freertos/timers.c \
@@ -60,6 +59,8 @@ SRCS = 	./src/system_stm32f10x.c \
 	./src/ssd1289/ssd1289.c \
 	./src/ssd1289/ssd1289_graphic.c \
 	./src/ssd1289/ssd1289_text.c \
+	./src/ssd1289/ssd1289_dotmatrix.c \
+	./src/ssd1289/ssd1289_7seg.c \
 	./src/leds.c \
 	./src/printf.c \
 	./src/random.c \
@@ -68,7 +69,8 @@ SRCS = 	./src/system_stm32f10x.c \
 	./src/shell.c \
 	./src/encoder.c \
 	./src/ssd1289_demo.c \
-	./src/main.c
+	./src/main.c \
+	./src/timer.c
 
 OBJS=$(SRCS:.c=.o)
 

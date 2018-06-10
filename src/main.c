@@ -38,12 +38,18 @@
 #include "random.h"						// small, pseudo random
 #include "ssd1289.h"
 #include "shell.h"
+#include "ssd1289_dotmatrix.h"
+#include "ssd1289_7seg.h"
+#include "timer.h"
 
 extern void vT_display_demo(void *p);	// see ssd1289_demo.c
 extern void vT_led(void *p);			// see leds.c
 void vT_shell(void *p);					// calls console_main() from shell.c
 void vT_encoder(void *p);
-
+int segment_test(void);
+void systick_delay(int ticks);
+uint32_t millis();
+volatile uint32_t systick_counter;
 /* run a simple console on USART1 */
 void vT_shell(void *p) {
 	init_console();
@@ -63,7 +69,8 @@ void vT_encoder(void *p) {
 }
 
 int main(void){
-	SystemInit();
+    char str[32];
+ 	SystemInit();
 	usart1_init();
 	init_leds();
 	ssd1289_init();
@@ -74,15 +81,37 @@ int main(void){
 
 	init_buttons();
 	encoder_init();	
-	init_printf(PRINTF_OUTPUT_SSD1289 | PRINTF_OUTPUT_USART1);
-	    
-	xTaskCreate(vT_shell,   	 (const char*) "Shell Task", 256, NULL, 1, NULL);
-	xTaskCreate(vT_led,     	 (const char*) "LED Task", 48, NULL, 1, NULL);
-	xTaskCreate(vT_display_demo, (const char*) "SSD1289_DEMO", 256, NULL, 1, NULL);
-	xTaskCreate(vT_encoder,		 (const char*) "Encoder Task", 32, NULL, 1, NULL);
+
+    LED1_ON();
+    LED2_ON();
+    
+	systick_counter = 0;
+    uint32_t start, end, ms;
+    
+	/* 1000 interrupts per second = 1khz */
+	SysTick_Config(SystemCoreClock/1000);
+	int i,color;
+	color = LCD_COLOR(0, 0, 255);
+	for(i = 0; i < 5; i++) {
+		ssd1289_dotmatrix_digit(i*42, 10, 13, LCD_COLOR(0x1a, 0x2a, 0x3a));
+		ssd1289_dotmatrix_digit(i*42, 10, i, color<<=3);
+	}		
+    start = millis();
+    ssd1289_clear();
+    end = millis();
+    ms = end-start;
+    
+    sprintf(str, "%ld", ms);
+    ssd1289_puts_at(10, 150, str);
+
+    
+// 	xTaskCreate(vT_shell,   	 (const char*) "Shell Task", 256, NULL, 1, NULL);
+// 	xTaskCreate(vT_led,     	 (const char*) "LED Task", 48, NULL, 1, NULL);
+// 	xTaskCreate(vT_display_demo, (const char*) "SSD1289_DEMO", 256, NULL, 1, NULL);
+// 	xTaskCreate(vT_encoder,		 (const char*) "Encoder Task", 32, NULL, 1, NULL);
 	// Start RTOS scheduler
 
-	vTaskStartScheduler();
+// 	vTaskStartScheduler();
 
 
 	for(;;) {
@@ -92,9 +121,54 @@ int main(void){
 	return 0;
 }
 
+int segment_test(void) {
+	int x, y, i;
+	y = 80;
+	i = 0x08;
+	for(x = 10; x < 215; x+=27) {
+		draw_7segment(x, y, 0xff, LCD_COLOR(0x10, 0, 0));
+		segment_putn(x, y, i, LCD_COLOR(0xff, 0, 0));
+		i++;
+	}
+
+
+	return 0;
+}
+
+
+void SysTick_Handler() {
+	systick_counter++;
+
+	static int led1 = 0;
+
+	if((systick_counter % 100)==0) {	// every 100mS
+		led1 = !led1;
+		if(led1) LED1_ON();
+		else	 LED1_OFF();
+	}
+}
+
+uint32_t millis() {
+    return systick_counter;
+}
+
+/*
+ * parameter says how many ticks to wait. With a 1khz interrupt
+ * one tick equals 1mS.
+ *
+ */
+void systick_delay(int ticks) {
+	uint32_t ticks_start = systick_counter;
+
+	while(systick_counter < (ticks_start + ticks));
+
+	return;
+}
+
+
 void vApplicationStackOverflowHook(xTaskHandle *pxTask, signed char *pcTaskName) {
 	usart1_puts("ERROR: vApplicationStackOverflowHook(): Task ");
-	usart1_puts(pcTaskName);
+ 	usart1_puts((char *)pcTaskName);
 	usart1_puts(" overflowed its stack.\r\n");
 	//assert(false);
 }
