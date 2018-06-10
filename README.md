@@ -131,8 +131,7 @@ LCD_DB17	FSMC_D15		PD10
 # Authors  
 (c) 2015, 2017, 2018 Nils Stec <stecdose@gmail.com>  
 (c) 2010 poweravr from powermcu.com has written:   
-bresenham line drawing function,  
-parts of initialization routine  
+bresenham line drawing function, parts of initialization routine  
   
 # Changelog  
 - 2015 august	created first version of this driver  
