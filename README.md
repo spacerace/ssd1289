@@ -97,8 +97,8 @@ a fill_screen takes a lot. Maybe 1/5th of a second.
 # Overclocking the STM32
 
 # Hardware connections:  
-`controller: STM32F103VCT6  `
-`lcd: HY32D  (ssd1289 controller)`
+`controller: STM32F103VCT6`  
+`lcd: HY32D  (ssd1289 controller)`  
 You'll find a circuit diagram in the source tree.  
 ```
 LCD Pin	    STM32F10x AF    STM32F103VCT6 Pin  
