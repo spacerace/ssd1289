@@ -61,9 +61,9 @@ Touchscreen code is not done now. Not usable.
 This library was never meant to be fast or small, but  
 it seems I am going this way...  
 RAM usage needs to be estimated, but i think it won't be more than 1k.
-
-`The driver itself = ~660bytes  `
-`The graphics part = ~720bytes  `
+  
+`The driver itself = ~660bytes`  
+`The graphics part = ~720bytes`  
 `text with all 4 fonts included it takes ~10.750bytes`  
   
 In demo code main.c includes a small image (Amiga Workbench Floppy).  
