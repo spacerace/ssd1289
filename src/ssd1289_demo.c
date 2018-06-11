@@ -2,7 +2,6 @@
 #include "buttons.h"
 #include "freertos/include/FreeRTOS.h"
 #include "freertos/include/task.h"
-#include "printf.h"						// very small printf-implementation. see printf.c
 #include "random.h"						// small, pseudo random
 #include "ssd1289.h"
 

@@ -34,13 +34,14 @@
 #include "encoder.h"
 #include "freertos/include/FreeRTOS.h"
 #include "freertos/include/task.h"
-#include "printf.h"						// very small printf-implementation. see printf.c
 #include "random.h"						// small, pseudo random
 #include "ssd1289.h"
 #include "shell.h"
 #include "ssd1289_dotmatrix.h"
 #include "ssd1289_7seg.h"
 #include "timer.h"
+#include "core_cm3.h"
+#include "image_monkeyisland.h"
 
 extern void vT_display_demo(void *p);	// see ssd1289_demo.c
 extern void vT_led(void *p);			// see leds.c
@@ -50,6 +51,19 @@ int segment_test(void);
 void systick_delay(int ticks);
 uint32_t millis();
 volatile uint32_t systick_counter;
+void dwt_enable();
+void dwt_enable_cycle_cnt();
+void dwt_disable_cycle_cnt();
+uint32_t dwt_get_cycle_cnt();
+void dwt_reset_cycle_cnt();
+
+volatile uint32_t *DWT_CONTROL = (uint32_t *)0xE0001000;
+volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004; 
+volatile uint32_t *DEMCR = (uint32_t *)0xE000EDFC;
+
+
+
+
 /* run a simple console on USART1 */
 void vT_shell(void *p) {
 	init_console();
@@ -70,6 +84,8 @@ void vT_encoder(void *p) {
 
 int main(void){
     char str[32];
+    uint32_t start, end, ms;
+    
  	SystemInit();
 	usart1_init();
 	init_leds();
@@ -82,26 +98,40 @@ int main(void){
 	init_buttons();
 	encoder_init();	
 
-    LED1_ON();
-    LED2_ON();
+    LED1_OFF();
+    LED2_OFF();
     
 	systick_counter = 0;
-    uint32_t start, end, ms;
     
+    dwt_enable();
 	/* 1000 interrupts per second = 1khz */
-	SysTick_Config(SystemCoreClock/1000);
-	int i,color;
-	color = LCD_COLOR(0, 0, 255);
-	for(i = 0; i < 5; i++) {
-		ssd1289_dotmatrix_digit(i*42, 10, 13, LCD_COLOR(0x1a, 0x2a, 0x3a));
-		ssd1289_dotmatrix_digit(i*42, 10, i, color<<=3);
-	}		
-    start = millis();
-    ssd1289_clear();
-    end = millis();
+// 	SysTick_Config(SystemCoreClock/1000);
+    
+    
+
+    
+// 	int i,color;
+// 	color = LCD_COLOR(0, 0, 255);
+// 	for(i = 0; i < 5; i++) {
+// 		ssd1289_dotmatrix_digit(i*42, 10, 13, LCD_COLOR(0x1a, 0x2a, 0x3a));
+// 		ssd1289_dotmatrix_digit(i*42, 10, i, color<<=3);
+// 	}		
+
+    ssd1289_print_image(&mi, 0, 0);
+
+    dwt_reset_cycle_cnt();
+    dwt_enable_cycle_cnt();
+    start = dwt_get_cycle_cnt();
+
+    printf("Hello World\r\n");
+    
+    end = dwt_get_cycle_cnt();
     ms = end-start;
     
-    sprintf(str, "%ld", ms);
+    uint32_t time_used = ms*78;
+    time_used /= 10;
+    
+    sprintf(str, "%lunS", time_used);
     ssd1289_puts_at(10, 150, str);
 
     
@@ -120,6 +150,28 @@ int main(void){
 		
 	return 0;
 }
+
+
+void dwt_enable() {
+    *DEMCR = *DEMCR | 0x01000000;
+}
+
+void dwt_enable_cycle_cnt() {
+*DWT_CONTROL = 0x40000001;
+}
+
+void dwt_disable_cycle_cnt() {
+    *DWT_CONTROL = 0x40000000;
+}
+
+uint32_t dwt_get_cycle_cnt() {
+    return *DWT_CYCCNT;
+}
+
+void dwt_reset_cycle_cnt() {
+    *DWT_CYCCNT = 0;
+}
+
 
 int segment_test(void) {
 	int x, y, i;

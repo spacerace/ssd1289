@@ -31,8 +31,9 @@ You should also see `src/main.c` for an example on how to use it.
   
 I have implemented a small console, that does automatically wrap-around  
 to next line. Just set cursor to a position (ex. 0/0) and write strings  
-to output.  
-printf will be used from libc. The file `syscalls.c` has a `_write()`-implementation, that takes care of outputting it to USART1.
+to output.__
+printf will be used from libc. The file `syscalls.c` has a  
+`_write()`-implementation, that takes care of outputting it to USART1.
   
 All graphic and text functions can be used at any time after normal  
 initialization. For example, if you use the text console you can  
@@ -92,7 +93,15 @@ can't be done much.
 It is fast enough when only changing a few parts of the screen (ex.:   
 you won't see flickering while updating a small clock-string), but  
 a fill_screen takes a lot. Maybe 1/5th of a second.  
-# Speed measurements:
+
+# Speed measurements 
+These measurements were done on an 128MHz STM32F103:  
+```
+- ssd1289_print_image(): printing an image from flash       = 98.3mS
+- ssd1289_fill_screen(): fill screen with single color      = 11.2mS
+- printf():              printf("Hello World\r\n")@11k2     =  1.2mS
+```
+72MHz STM32F103:  
 
 # Overclocking the STM32
 

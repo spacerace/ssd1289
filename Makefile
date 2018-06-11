@@ -62,13 +62,11 @@ SRCS = 	./src/system_stm32f10x.c \
 	./src/ssd1289/ssd1289_dotmatrix.c \
 	./src/ssd1289/ssd1289_7seg.c \
 	./src/leds.c \
-	./src/printf.c \
 	./src/random.c \
 	./src/usart.c \
 	./src/buttons.c \
 	./src/shell.c \
 	./src/encoder.c \
-	./src/ssd1289_demo.c \
 	./src/main.c \
 	./src/timer.c
 
