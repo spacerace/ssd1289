@@ -61,9 +61,6 @@ volatile uint32_t *DWT_CONTROL = (uint32_t *)0xE0001000;
 volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004;
 volatile uint32_t *DEMCR = (uint32_t *)0xE000EDFC;
 
-
-
-
 /* run a simple console on USART1 */
 void vT_shell(void *p) {
 	init_console();
@@ -85,6 +82,7 @@ void vT_encoder(void *p) {
 int main(void){
     char str[32];
     uint32_t start, end, ms;
+    FRESULT r;
 
  	SystemInit();
 	usart1_init();
@@ -93,7 +91,7 @@ int main(void){
 	ssd1289_fill(RGB_COL_BLACK);
 	ssd1289_textcon_init();
 	ssd1289_set_font_color(RGB_COL_YELLOW, RGB_COL_BLACK);
-	ssd1289_set_font(FONT_LINUX_8x16);
+	ssd1289_set_font(FONT_LINUX_ACORN_8x8);
 
 	init_buttons();
 	encoder_init();
@@ -105,9 +103,7 @@ int main(void){
 
     dwt_enable();
 	/* 1000 interrupts per second = 1khz */
-// 	SysTick_Config(SystemCoreClock/1000);
-
-
+ 	SysTick_Config(SystemCoreClock/1000);
 
 
 // 	int i,color;
@@ -117,7 +113,7 @@ int main(void){
 // 		ssd1289_dotmatrix_digit(i*42, 10, i, color<<=3);
 // 	}
 
-    ssd1289_print_image(&mi, 0, 0);
+    //ssd1289_print_image(&mi, 0, 0);
 
     dwt_reset_cycle_cnt();
     dwt_enable_cycle_cnt();
@@ -132,8 +128,6 @@ int main(void){
     time_used /= 10;
 
     sprintf(str, "%lunS", time_used);
-    ssd1289_puts_at(10, 150, str);
-
 
 // 	xTaskCreate(vT_shell,   	 (const char*) "Shell Task", 256, NULL, 1, NULL);
 // 	xTaskCreate(vT_led,     	 (const char*) "LED Task", 48, NULL, 1, NULL);
@@ -185,6 +179,29 @@ int segment_test(void) {
 
 
 	return 0;
+}
+
+void textcon_test(void) {
+
+	ssd1289_puts("abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmopq\n1\n2\n3\n4\n5\n6\n4\n7\n8\n9\na\nb\nc\ndddd9\n4\n5\n6\n4\n7\n8\n9\na\nb\nc\ndddd9");
+
+	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_RED);
+	ssd1289_set_text_cursor(10, 10);
+	ssd1289_puts("39x26 text console");
+	ssd1289_set_text_cursor(14, 11);
+	ssd1289_puts("8x8 Linux Acorn Font");
+
+	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_BLACK);
+	ssd1289_set_text_cursor(10, 13);
+	ssd1289_puts("39x26 text console");
+	ssd1289_set_text_cursor(14, 14);
+	ssd1289_puts("8x8 Linux Acorn Font");
+
+	ssd1289_set_font_color(RGB_COL_CYAN, RGB_COL_BLACK);
+	ssd1289_set_text_cursor(10, 16);
+	ssd1289_puts("39x26 text console");
+	ssd1289_set_text_cursor(14, 17);
+	ssd1289_puts("8x8 Linux Acorn Font");
 }
 
 
