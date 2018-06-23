@@ -38,8 +38,10 @@ SRCS = 	./src/system_stm32f10x.c \
 	./src/fw_lib/core_cm3.c \
 	./src/fw_lib/stm32f10x_rcc.c \
 	./src/fw_lib/stm32f10x_gpio.c \
+	./src/fw_lib/stm32f10x_sdio.c \
 	./src/fw_lib/stm32f10x_usart.c \
 	./src/fw_lib/stm32f10x_spi.c \
+	./src/fw_lib/stm32f10x_dma.c \
 	./src/fw_lib/stm32f10x_tim.c \
 	./src/fw_lib/stm32f10x_exti.c \
 	./src/fw_lib/stm32f10x_fsmc.c \
