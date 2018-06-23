@@ -1,13 +1,13 @@
-/* 
+/*
  * (c) 2017 Nils Stec <stecdose@gmail.com>
- * 
+ *
  * Fonts are taken from linux's source code.
  * simple text console written by Nils Stec.
- * 
+ *
  * TODO:
  * 	- font spacing
- * 
- * 
+ *
+ *
  */
 
 #include <stdio.h>
@@ -20,6 +20,10 @@
 #include "fonts/linux_8x16.h"
 #include "fonts/linux_8x8.h"
 #include "fonts/linux_pearl_8x8.h"
+
+extern int ssd1289_display_size_x;
+extern int ssd1289_display_size_y;
+extern int ssd1289_orientation;
 
 static struct simple_textcon {
 	int char_transparent_bg;
@@ -76,12 +80,12 @@ void ssd1289_textcon_init() {
 	con.char_transparent_bg = FALSE;
 	con.char_fg = 0xffff;
 	con.char_bg = 0x0000;
-	
+
 	ssd1289_set_font(FONT_LINUX_8x16);
-	
+
 	con.cursor_x = 0;
 	con.cursor_y = 0;
-	
+
 	con.putc_delay = 0;
 	return;
 }
@@ -91,28 +95,28 @@ void ssd1289_set_font(int font) {
 		case FONT_LINUX_ACORN_8x8:
 			con.font_data = (uint8_t *)&fontdata_acorn_8x8;
 			con.font_size_x = 8;
-			con.font_size_y = 8;			
+			con.font_size_y = 8;
 			con.char_spacing_x = 0;
 			con.char_spacing_y = 1;
-			break;			
+			break;
 		case FONT_LINUX_8x16:
 			con.font_data = (uint8_t *)&fontdata_8x16;
 			con.font_size_x = 8;
-			con.font_size_y = 16;			
+			con.font_size_y = 16;
 			con.char_spacing_x = 1;
 			con.char_spacing_y = 1;
-			break;	
+			break;
 		case FONT_LINUX_8x8:
 			con.font_data = (uint8_t *)&fontdata_linux_8x8;
 			con.font_size_x = 8;
-			con.font_size_y = 8;			
+			con.font_size_y = 8;
 			con.char_spacing_x = 0;
 			con.char_spacing_y = 1;
-			break;	
+			break;
 		case FONT_LINUX_PEARL_8x8:
 			con.font_data = (uint8_t *)&fontdata_pearl_8x8;
 			con.font_size_x = 8;
-			con.font_size_y = 8;			
+			con.font_size_y = 8;
 			con.char_spacing_x = 0;
 			con.char_spacing_y = 1;
 			break;
@@ -122,7 +126,7 @@ void ssd1289_set_font(int font) {
 
 void ssd1289_set_font_color(int fg, int bg) {
 	con.char_fg = fg;
-	con.char_bg = bg;	
+	con.char_bg = bg;
 	return;
 }
 
@@ -152,7 +156,7 @@ void ssd1289_inc_cursor() {
 void ssd1289_inc_cursor_y() {
 	con.cursor_y++;
 	con.cursor_x = 0;
-	return;		
+	return;
 
 }
 
@@ -165,12 +169,12 @@ void ssd1289_put_char_at(int x_off, int y_off, uint8_t c) {
 	uint16_t bg = con.char_bg;
 	uint16_t size_x = con.font_size_x;
 	uint16_t size_y = con.font_size_y;
-	
 
-	
+
+
 	offset_in_charset =  c * con.font_size_y;
-	
-	
+
+
 	for(y = 0; y < size_y; y++) {
 		line_data = con.font_data[offset_in_charset+y];
 		for(x = 0; x < size_x; x++) {
@@ -182,21 +186,21 @@ void ssd1289_put_char_at(int x_off, int y_off, uint8_t c) {
 				}
 			}
 		}
-		
+
 	}
-	
+
 	return;
 }
 
 void ssd1289_puts_at(int x_off, int y_off, char *str) {
 	int charcount = 0;
-	
+
 	while(*str != '\0') {
 		ssd1289_put_char_at(x_off+(charcount*con.font_size_x), y_off, *str);
 		str++;
 		charcount++;
 	}
-	return;	
+	return;
 }
 
 void ssd1289_puts(char *str) {
@@ -214,9 +218,9 @@ void ssd1289_putc(char c) {
 	int font_size_y = con.font_size_y;
 	int spacing_x = con.char_spacing_x;
 	int spacing_y = con.char_spacing_y;
-	
+
 	int x_off = (cursor_x * font_size_x)+(cursor_x * spacing_x);
-	
+
 	if(c == '\n') {
 			con.cursor_y++;
 			con.cursor_x = 0;
@@ -226,22 +230,22 @@ void ssd1289_putc(char c) {
 			con.cursor_x = 0;
 			return;
 	}
-	
-	if(x_off >= (241-font_size_x)) {
+
+	if(x_off >= (ssd1289_display_size_x-font_size_x)) {
 		x_off = 0;
 		con.cursor_x = 0;
 		con.cursor_y++;				// increment global cursor
 		cursor_y = con.cursor_y;	// copy global to local cursor
 	}
-	
-	
+
+
 	int y_off = (cursor_y * font_size_y)+(cursor_y * spacing_y);
-	
-	ssd1289_put_char_at(x_off, y_off, c);	
-	
+
+	ssd1289_put_char_at(x_off, y_off, c);
+
 	con.cursor_x++;
-	
-	
+
+
 // 	vTaskDelay(con.putc_delay);
 
 }

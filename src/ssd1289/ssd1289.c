@@ -1,7 +1,5 @@
-/* ssd1289 driver for stm32f10x (v0.2)
- *
- *
- *
+/*
+ * ssd1289 driver for stm32f10x (v0.2)
  *
  * see global README.md for more information.
  */
@@ -18,7 +16,28 @@ static uint16_t ssd1289_read_reg(uint8_t reg_addr);
 /* global variables, needed by driver, can be used by user */
 int ssd1289_display_size_x;
 int ssd1289_display_size_y;
+int ssd1289_orientation;
 static int bl;
+
+int set_orientation(int angle);
+
+int set_orientation(int angle) {
+	switch(angle) {
+		case 0:
+			ssd1289_orientation = 0;
+			ssd1289_display_size_x = 240;
+			ssd1289_display_size_y = 320;
+			break;
+		case 90:
+			ssd1289_orientation = 90;
+		 	ssd1289_display_size_x = 320;
+			ssd1289_display_size_y = 240;
+			break;
+		default:
+			return -1;
+	}
+	return 0;
+}
 
 int ssd1289_init() {
 	uint16_t lcd_id;
@@ -32,9 +51,8 @@ int ssd1289_init() {
  	if((lcd_id == SSD1289_ID0) || (lcd_id == SSD1289_ID1)) {
 		ssd1289_controller_init();
 		ssd1289_bl_init();
-		ssd1289_bl_set(70);
-	 	ssd1289_display_size_x = 240;
-		ssd1289_display_size_y = 320;
+		ssd1289_bl_set(100);
+		set_orientation(90);
 		return SSD1289_FOUND;
  	}
 
@@ -127,6 +145,12 @@ static void ssd1289_init_fsmc() {
 	return;
 }
 
+#define REG_DRVOUTCTRL	0x0001	// driver output control
+
+#define DRVOUTCTRL_SM	0x0400	// scanning order gate driver, 0=interlaced, 1=not interlaced
+#define DRVOUTCTRL_RL	0x4000	// shift direction source driver
+#define DRVOUTCTRL_REV	0x0200
+
 static void ssd1289_controller_init() {
 	int i;
 	const static uint16_t init_data[45][2] = {
@@ -136,7 +160,13 @@ static void ssd1289_controller_init() {
 		{ 0x0007, 0x0023 },	// display control
 		{ 0x0010, 0x0000 }, // sleep mode
 		{ 0x0007, 0x0033 }, // display control
-		{ 0x0011, 0x6838 },	// entry mode
+
+#define AM	0x0008
+#define ID0	0x0010
+#define ID1	0x0020
+
+		{ 0x0011, 0x6800 },	// entry mode			//
+
 		{ 0x0002, 0x0600 },	// lcd drive ac ctrl
 		{ 0x0012, 0x6CEB },	// opt access speed 3
 		{ 0x0003, 0xA8A4 },	// power control 1
@@ -144,7 +174,10 @@ static void ssd1289_controller_init() {
 		{ 0x000D, 0x080C },	// power control 3
 		{ 0x000E, 0x2B00 }, // power control 4
 		{ 0x001E, 0x00B0 }, // power control 5
-		{ 0x0001, 0x2B3F }, // driver output ctrl
+		{ 0x0001, 0x2B3F }, // driver output ctrl	// portrait
+
+		//{ 0x0001, 0x293F }, // driver output ctrl	// ?landscape
+
 		{ 0x0005, 0x0000 }, // compare register 1
 		{ 0x0006, 0x0000 }, // compare register 2
 		{ 0x0016, 0xEF1C }, // horizontal porch
