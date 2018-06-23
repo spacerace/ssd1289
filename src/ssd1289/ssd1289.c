@@ -1,8 +1,8 @@
 /* ssd1289 driver for stm32f10x (v0.2)
- * 
- * 
- * 
- * 
+ *
+ *
+ *
+ *
  * see global README.md for more information.
  */
 
@@ -20,24 +20,25 @@ int ssd1289_display_size_x;
 int ssd1289_display_size_y;
 static int bl;
 
-int ssd1289_init() { 
+int ssd1289_init() {
 	uint16_t lcd_id;
 
-	ssd1289_init_gpio();        
+	ssd1289_init_gpio();
 	ssd1289_init_fsmc();
 
 	/* debugging helper... read register 0x00, display will return an ID */
- 	lcd_id = ssd1289_read_reg(0x00);	
+ 	lcd_id = ssd1289_read_reg(0x00);
 
  	if((lcd_id == SSD1289_ID0) || (lcd_id == SSD1289_ID1)) {
 		ssd1289_controller_init();
 		ssd1289_bl_init();
-		ssd1289_bl_set(100);
+		ssd1289_bl_set(70);
+	 	ssd1289_display_size_x = 240;
+		ssd1289_display_size_y = 320;
 		return SSD1289_FOUND;
  	}
- 	
- 	ssd1289_display_size_x = 240;
- 	ssd1289_display_size_y = 320;
+
+
 
  	return SSD1289_NOT_FOUND;
 }
@@ -47,7 +48,7 @@ void ssd1289_set_cursor(uint16_t x, uint16_t y) {
 	ssd1289_write_reg(0x4f, y);
 
 	LCD_REG = 0x22;		/* set register for RAM, next access to LCD_RAM is pixel data */
-	
+
 	return;
 }
 
@@ -56,45 +57,45 @@ static void ssd1289_init_gpio() {
 
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOD,ENABLE);
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOE,ENABLE);
-  
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 | 
-								  GPIO_Pin_1 | 
-								  GPIO_Pin_4 | 
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_0 |
+								  GPIO_Pin_1 |
+								  GPIO_Pin_4 |
 								  GPIO_Pin_5 |
-								  GPIO_Pin_7 | 
-								  GPIO_Pin_8 | 
-								  GPIO_Pin_9 | 
+								  GPIO_Pin_7 |
+								  GPIO_Pin_8 |
+								  GPIO_Pin_9 |
 								  GPIO_Pin_10 |
-                                  GPIO_Pin_11 | 
-                                  GPIO_Pin_14 | 
+                                  GPIO_Pin_11 |
+                                  GPIO_Pin_14 |
                                   GPIO_Pin_15;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-	GPIO_Init(GPIOD, &GPIO_InitStructure);   
-  
-	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3 | 
-								  GPIO_Pin_7 | 
-								  GPIO_Pin_8 | 
+	GPIO_Init(GPIOD, &GPIO_InitStructure);
+
+	GPIO_InitStructure.GPIO_Pin = GPIO_Pin_3 |
+								  GPIO_Pin_7 |
+								  GPIO_Pin_8 |
 								  GPIO_Pin_9 |
-                                  GPIO_Pin_10 | 
-                                  GPIO_Pin_11 | 
-                                  GPIO_Pin_12 | 
+                                  GPIO_Pin_10 |
+                                  GPIO_Pin_11 |
+                                  GPIO_Pin_12 |
                                   GPIO_Pin_13 |
-                                  GPIO_Pin_14 | 
+                                  GPIO_Pin_14 |
                                   GPIO_Pin_15;
 	GPIO_InitStructure.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOE, &GPIO_InitStructure);
-  
+
 	return;
 }
 
 static void ssd1289_init_fsmc() {
 	FSMC_NORSRAMInitTypeDef        FSMC_NORSRAMInitStructure;
 	FSMC_NORSRAMTimingInitTypeDef  FSMC_NORSRAMTimingInitStructure;
-  
-	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);  
-  
+
+	RCC_AHBPeriphClockCmd(RCC_AHBPeriph_FSMC, ENABLE);
+
 	FSMC_NORSRAMTimingInitStructure.FSMC_AddressSetupTime = LCD_FSMC_ADDR_SETUP_TIME;
 	FSMC_NORSRAMTimingInitStructure.FSMC_AddressHoldTime = 1;
 	FSMC_NORSRAMTimingInitStructure.FSMC_DataSetupTime = LCD_FSMC_DATA_SETUP_TIME;
@@ -102,27 +103,27 @@ static void ssd1289_init_fsmc() {
 	FSMC_NORSRAMTimingInitStructure.FSMC_CLKDivision = 0;
 	FSMC_NORSRAMTimingInitStructure.FSMC_DataLatency = 0;
 	FSMC_NORSRAMTimingInitStructure.FSMC_AccessMode = FSMC_AccessMode_A;
-	
+
 	FSMC_NORSRAMInitStructure.FSMC_Bank = FSMC_Bank1_NORSRAM1;
 	FSMC_NORSRAMInitStructure.FSMC_DataAddressMux = FSMC_DataAddressMux_Disable;
 	FSMC_NORSRAMInitStructure.FSMC_MemoryType = FSMC_MemoryType_SRAM;
 	FSMC_NORSRAMInitStructure.FSMC_MemoryDataWidth = FSMC_MemoryDataWidth_16b;
 	FSMC_NORSRAMInitStructure.FSMC_BurstAccessMode = FSMC_BurstAccessMode_Disable;
-	FSMC_NORSRAMInitStructure.FSMC_AsynchronousWait = FSMC_AsynchronousWait_Disable;   
-	FSMC_NORSRAMInitStructure.FSMC_WaitSignalPolarity = FSMC_WaitSignalPolarity_Low;  
-	FSMC_NORSRAMInitStructure.FSMC_WrapMode = FSMC_WrapMode_Disable;  
-	FSMC_NORSRAMInitStructure.FSMC_WaitSignalActive = FSMC_WaitSignalActive_BeforeWaitState;  
-	FSMC_NORSRAMInitStructure.FSMC_WriteOperation = FSMC_WriteOperation_Enable;  
-	FSMC_NORSRAMInitStructure.FSMC_WaitSignal = FSMC_WaitSignal_Disable;   
-	FSMC_NORSRAMInitStructure.FSMC_ExtendedMode = FSMC_ExtendedMode_Disable;  
-	FSMC_NORSRAMInitStructure.FSMC_WriteBurst = FSMC_WriteBurst_Disable;  
-	FSMC_NORSRAMInitStructure.FSMC_ReadWriteTimingStruct = &FSMC_NORSRAMTimingInitStructure; 
+	FSMC_NORSRAMInitStructure.FSMC_AsynchronousWait = FSMC_AsynchronousWait_Disable;
+	FSMC_NORSRAMInitStructure.FSMC_WaitSignalPolarity = FSMC_WaitSignalPolarity_Low;
+	FSMC_NORSRAMInitStructure.FSMC_WrapMode = FSMC_WrapMode_Disable;
+	FSMC_NORSRAMInitStructure.FSMC_WaitSignalActive = FSMC_WaitSignalActive_BeforeWaitState;
+	FSMC_NORSRAMInitStructure.FSMC_WriteOperation = FSMC_WriteOperation_Enable;
+	FSMC_NORSRAMInitStructure.FSMC_WaitSignal = FSMC_WaitSignal_Disable;
+	FSMC_NORSRAMInitStructure.FSMC_ExtendedMode = FSMC_ExtendedMode_Disable;
+	FSMC_NORSRAMInitStructure.FSMC_WriteBurst = FSMC_WriteBurst_Disable;
+	FSMC_NORSRAMInitStructure.FSMC_ReadWriteTimingStruct = &FSMC_NORSRAMTimingInitStructure;
 	FSMC_NORSRAMInitStructure.FSMC_WriteTimingStruct = &FSMC_NORSRAMTimingInitStructure;
-	
-	FSMC_NORSRAMInit(&FSMC_NORSRAMInitStructure); 
-	
+
+	FSMC_NORSRAMInit(&FSMC_NORSRAMInitStructure);
+
 	FSMC_NORSRAMCmd(FSMC_Bank1_NORSRAM1, ENABLE);
-	
+
 	return;
 }
 
@@ -169,41 +170,41 @@ static void ssd1289_controller_init() {
 		{ 0x0037, 0x0502 }, // gamma control 8
 		{ 0x003A, 0x0302 }, // gamma control 9
 		{ 0x002F, 0x12BE }, // optimize access speed 2
-		{ 0x003B, 0x0302 }, // gamma control 10 
+		{ 0x003B, 0x0302 }, // gamma control 10
 		{ 0x0023, 0x0000 }, // ram write data mask 1
 		{ 0x0024, 0x0000 }, // ram write data mask 2
 		{ 0x0025, 0x8000 }, // frame frequency
 		{ 0x004e, 0x0000 },	// X-counter
 		{ 0x004f, 0x0000 },	// Y-counter
- 
+
 	};
-	
+
 	for(i = 0; i < 44; i ++) {
 		ssd1289_write_reg(init_data[i][0], init_data[i][1]);
 	}
-	
+
 	return;
 }
 
 /* read directly from display memory */
 static uint16_t ssd1289_read_reg(uint8_t reg_addr) {
 	LCD_REG = reg_addr;
-	
+
 	return LCD_RAM;
 }
 
 /* write directly to display memory */
 static void ssd1289_write_reg(uint8_t reg_addr, uint16_t reg_value) {
 	LCD_REG = reg_addr;
-	LCD_RAM = reg_value; 
-	
+	LCD_RAM = reg_value;
+
 	return;
 }
 
 /* set backlight, put in 0 to 100 */
 void ssd1289_bl_set(int percent) {
 	TIM_OCInitTypeDef oc_bl;
-	
+
 	oc_bl.TIM_OCMode = TIM_OCMode_PWM1;
 	oc_bl.TIM_OutputState = TIM_OutputState_Enable;
 	oc_bl.TIM_Pulse = percent*10;
@@ -223,20 +224,20 @@ int ssd1289_bl_get() {
 void ssd1289_bl_init() {
 	GPIO_InitTypeDef GPIO_InitData;
 	TIM_TimeBaseInitTypeDef TimeBase_InitData;
-	
+
 	const uint16_t period = (uint16_t) (SystemCoreClock / 1000000) - 1;
 
 	/* enable clock for GPIO, PWM pin and TIM3 */
 	RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOB | RCC_APB2Periph_AFIO, ENABLE);
 	RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
-	
+
 	/* configure PWM pin */
 	GPIO_InitData.GPIO_Pin = GPIO_Pin_5;
 	GPIO_InitData.GPIO_Mode = GPIO_Mode_AF_PP;
 	GPIO_InitData.GPIO_Speed = GPIO_Speed_50MHz;
 	GPIO_Init(GPIOB, &GPIO_InitData);
 	GPIO_PinRemapConfig(GPIO_PartialRemap_TIM3, ENABLE);
-	
+
 	/* setup PWM */
 	TimeBase_InitData.TIM_ClockDivision = 0;
 	TimeBase_InitData.TIM_CounterMode = TIM_CounterMode_Up;
@@ -244,11 +245,11 @@ void ssd1289_bl_init() {
 	TimeBase_InitData.TIM_Prescaler = period;
 	TimeBase_InitData.TIM_Period = 999;
 	TIM_TimeBaseInit(TIM3, &TimeBase_InitData);
-	
+
 	TIM_OC2PreloadConfig(TIM3, TIM_OCPreload_Enable);
 	TIM_ARRPreloadConfig(TIM3, ENABLE);
 	TIM_Cmd(TIM3, ENABLE);
-	
+
 	return;
 }
 
