@@ -31,7 +31,7 @@ INCLUDE = -I./src/fw_lib/include \
 	  -I./src/mmc-sd/fatfs12a/ \
 	  -I./src/ssd1289/
 
-	  
+
 SRCS = 	./src/system_stm32f10x.c \
 	./src/stm32f10x_it.c \
 	./src/syscalls.c \
@@ -101,6 +101,6 @@ $(TARGET).elf: $(OBJS) ./src/startup.o
 %.o: %.S
 	@echo "  CC $<"
 	@$(CC) $(INCLUDE) $(CFLAGS)  $< -o $*.o
-	
+
 flash:
-	sudo /opt/stlink/bin/st-flash write $(TARGET).bin 0x8000000
+	st-flash write $(TARGET).bin 0x8000000
