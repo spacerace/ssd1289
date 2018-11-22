@@ -46,20 +46,19 @@ int ssd1289_init() {
 	ssd1289_init_fsmc();
 
 	/* debugging helper... read register 0x00, display will return an ID */
- 	lcd_id = ssd1289_read_reg(0x00);
+	lcd_id = ssd1289_read_reg(0x00);
 
- 	if((lcd_id == SSD1289_ID0) || (lcd_id == SSD1289_ID1)) {
+	if((lcd_id == SSD1289_ID0) || (lcd_id == SSD1289_ID1)) {
 		ssd1289_controller_init();
 		ssd1289_bl_init();
 		ssd1289_bl_set(100);
 		set_orientation(90);
 		return SSD1289_FOUND;
- 	}
+	}
 
-
-
- 	return SSD1289_NOT_FOUND;
+	return SSD1289_NOT_FOUND;
 }
+
 /* set x/y registers, a "pixel-cursor" */
 void ssd1289_set_cursor(uint16_t x, uint16_t y) {
 	ssd1289_write_reg(0x4e, x);

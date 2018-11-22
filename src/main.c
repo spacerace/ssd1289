@@ -43,167 +43,144 @@
 #include "core_cm3.h"
 #include "image_monkeyisland.h"
 
-extern void vT_display_demo(void *p);	// see ssd1289_demo.c
-extern void vT_led(void *p);			// see leds.c
-void vT_shell(void *p);					// calls console_main() from shell.c
-void vT_encoder(void *p);
-int segment_test(void);
 void systick_delay(int ticks);
 uint32_t millis();
 volatile uint32_t systick_counter;
-void dwt_enable();
-void dwt_enable_cycle_cnt();
-void dwt_disable_cycle_cnt();
-uint32_t dwt_get_cycle_cnt();
-void dwt_reset_cycle_cnt();
 
-volatile uint32_t *DWT_CONTROL = (uint32_t *)0xE0001000;
-volatile uint32_t *DWT_CYCCNT = (uint32_t *)0xE0001004;
-volatile uint32_t *DEMCR = (uint32_t *)0xE000EDFC;
-
-/* run a simple console on USART1 */
-void vT_shell(void *p) {
-	init_console();
-	for(;;) {
-		console_main();
-	}
-}
-
-void vT_encoder(void *p) {
-	ssd1289_set_font(FONT_LINUX_8x16);
-	ssd1289_set_font_color(RGB_COL_YELLOW, RGB_COL_BLACK);
-	ssd1289_set_text_cursor(0,0);
-
-	for(;;) {
-
-	}
-}
+void dos_colors();
 
 int main(void){
-    char str[32];
-    uint32_t start, end, ms;
-    FRESULT r;
+    SystemInit();
+    usart1_init();
+    init_leds();
+    ssd1289_init();
 
- 	SystemInit();
-	usart1_init();
-	init_leds();
-	ssd1289_init();
 	ssd1289_fill(RGB_COL_BLACK);
 	ssd1289_textcon_init();
 	ssd1289_set_font_color(RGB_COL_YELLOW, RGB_COL_BLACK);
-	ssd1289_set_font(FONT_LINUX_ACORN_8x8);
-
-	init_buttons();
-	encoder_init();
+	ssd1289_set_font(FONT_XGA_8x14);
+    init_ads7843();
 
     LED1_OFF();
     LED2_OFF();
 
 	systick_counter = 0;
-
-    dwt_enable();
 	/* 1000 interrupts per second = 1khz */
- 	SysTick_Config(SystemCoreClock/1000);
+	SysTick_Config(SystemCoreClock/1000);
 
+    ssd1289_set_transparency(FALSE);
+    ssd1289_set_font(FONT_XGA_8x14);
+    ssd1289_set_font_color(RGB_COL_YELLOW, RGB_COL_BLACK);
 
-// 	int i,color;
-// 	color = LCD_COLOR(0, 0, 255);
-// 	for(i = 0; i < 5; i++) {
-// 		ssd1289_dotmatrix_digit(i*42, 10, 13, LCD_COLOR(0x1a, 0x2a, 0x3a));
-// 		ssd1289_dotmatrix_digit(i*42, 10, i, color<<=3);
-// 	}
+    ads7843_calibration();
+    dos_colors();
 
-    //ssd1289_print_image(&mi, 0, 0);
-
-    dwt_reset_cycle_cnt();
-    dwt_enable_cycle_cnt();
-    start = dwt_get_cycle_cnt();
-
-    printf("Hello World\r\n");
-
-    end = dwt_get_cycle_cnt();
-    ms = end-start;
-
-    uint32_t time_used = ms*78;
-    time_used /= 10;
-
-    sprintf(str, "%lunS", time_used);
-
-// 	xTaskCreate(vT_shell,   	 (const char*) "Shell Task", 256, NULL, 1, NULL);
-// 	xTaskCreate(vT_led,     	 (const char*) "LED Task", 48, NULL, 1, NULL);
-// 	xTaskCreate(vT_display_demo, (const char*) "SSD1289_DEMO", 256, NULL, 1, NULL);
-// 	xTaskCreate(vT_encoder,		 (const char*) "Encoder Task", 32, NULL, 1, NULL);
-	// Start RTOS scheduler
-
-// 	vTaskStartScheduler();
-
-
-	for(;;) {
-
+    for(;;) {
+//         ssd1289_set_text_cursor(0, 0);
+//         sprintf(temp, "%08x %08x %d", ads7843_read_x(), ads7843_read_y(), tsirqs);
+//         ssd1289_puts(temp);
+//         systick_delay(100);
 	}
 
 	return 0;
 }
 
+void puts_colored(char *str);
 
-void dwt_enable() {
-    *DEMCR = *DEMCR | 0x01000000;
+void dos_colors() {
+    int i;
+
+    ssd1289_clear();
+
+    ssd1289_set_font(FONT_XGA_8x14);
+
+    ssd1289_set_font_color(DOS_COLOR_5, RGB_COL_BLACK);
+    ssd1289_set_transparency(FALSE);
+
+    ssd1289_set_text_cursor(0, 0);
+    ssd1289_putc(0xC9);     // top left corner
+    for(i = 0; i < 38; i++)
+        ssd1289_putc(0xCD); // top border
+    ssd1289_putc(0xBB);     // top right corner
+
+    ssd1289_set_text_cursor(0, 16);
+    ssd1289_putc(0xC8);     // bottom left corner
+    for(i = 0; i < 38; i++)
+        ssd1289_putc(0xCD); // bottom border
+    ssd1289_putc(0xBC); // bottom right corner
+
+    ssd1289_set_text_cursor(7, 0);
+    ssd1289_set_font_color(RGB_COL_CYAN, RGB_COL_BLACK);
+    ssd1289_puts(" DOS//IBM VGA 8x14 charset ");
+
+    ssd1289_set_font_color(RGB_COL_YELLOW, RGB_COL_BLACK);
+    ssd1289_set_text_cursor(6, 0);
+    ssd1289_putc('[');
+    ssd1289_set_text_cursor(34, 0);
+    ssd1289_putc(']');
+
+    ssd1289_set_font_color(DOS_COLOR_5, DOS_COLOR_0);
+    for(i = 1; i < 16; i++) {
+        ssd1289_set_text_cursor(0, i);
+        ssd1289_putc(0xBA);
+        ssd1289_set_text_cursor(39, i);
+        ssd1289_putc(0xBA);
+    }
+
+    ssd1289_set_font_color(DOS_COLOR_7, DOS_COLOR_0);
+    ssd1289_set_text_cursor(3, 2);
+
+    ssd1289_ignore_control_chars(1);
+
+    int x, y;
+    i = 0;
+    for(y = 0; y < 8; y++) {
+        ssd1289_set_text_cursor(4, 2+y);
+        for(x = 0; x < 32; x++) {
+            ssd1289_putc(i);
+            i++;
+        }
+    }
+
+    ssd1289_ignore_control_chars(0);
+
+    uint16_t colors[16] = { DOS_COLOR_0, DOS_COLOR_1, DOS_COLOR_2, DOS_COLOR_3, DOS_COLOR_4,
+        DOS_COLOR_5, DOS_COLOR_6, DOS_COLOR_7, DOS_COLOR_8, DOS_COLOR_9,
+        DOS_COLOR_10, DOS_COLOR_11, DOS_COLOR_12, DOS_COLOR_13,
+        DOS_COLOR_14, DOS_COLOR_15 };
+
+    for(i = 0; i < 8; i++) {
+        x = 45+(i*30);
+        y = 152;
+        ssd1289_rect     (x-1, y-1, x+20, y+26, RGB_COL_YELLOW);
+        ssd1289_fill_rect(x, y, x+20, y+25, colors[i]);
+    }
+
+    for(i = 0; i < 8; i++) {
+        x = 45+(i*30);
+        y = 188;
+        ssd1289_rect     (x-1, y-1, x+20, y+26, RGB_COL_YELLOW);
+        ssd1289_fill_rect(x, y, x+20, y+25, colors[i+7]);
+    }
+
+    return;
 }
 
-void dwt_enable_cycle_cnt() {
-	*DWT_CONTROL = 0x40000001;
+void puts_colored(char *str) {
+    uint16_t colors[17] = { DOS_COLOR_0, DOS_COLOR_1, DOS_COLOR_2, DOS_COLOR_3, DOS_COLOR_4,
+                            DOS_COLOR_5, DOS_COLOR_6, DOS_COLOR_7, DOS_COLOR_8, DOS_COLOR_9,
+                            DOS_COLOR_10, DOS_COLOR_11, DOS_COLOR_12, DOS_COLOR_13,
+                            DOS_COLOR_14, DOS_COLOR_15, DOS_COLOR_4 };
+    int i = 0;
+
+
+    while(*str) {
+        ssd1289_set_font_color(colors[i], 0);
+        ssd1289_putc(*str);
+        str++;
+        i++;
+    }
 }
-
-void dwt_disable_cycle_cnt() {
-    *DWT_CONTROL = 0x40000000;
-}
-
-uint32_t dwt_get_cycle_cnt() {
-    return *DWT_CYCCNT;
-}
-
-void dwt_reset_cycle_cnt() {
-    *DWT_CYCCNT = 0;
-}
-
-
-int segment_test(void) {
-	int x, y, i;
-	y = 80;
-	i = 0x08;
-	for(x = 10; x < 215; x+=27) {
-		draw_7segment(x, y, 0xff, LCD_COLOR(0x10, 0, 0));
-		segment_putn(x, y, i, LCD_COLOR(0xff, 0, 0));
-		i++;
-	}
-
-
-	return 0;
-}
-
-void textcon_test(void) {
-
-	ssd1289_puts("abcdefghijklmnopqrstuvwxyz1234567890abcdefghijklmopq\n1\n2\n3\n4\n5\n6\n4\n7\n8\n9\na\nb\nc\ndddd9\n4\n5\n6\n4\n7\n8\n9\na\nb\nc\ndddd9");
-
-	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_RED);
-	ssd1289_set_text_cursor(10, 10);
-	ssd1289_puts("39x26 text console");
-	ssd1289_set_text_cursor(14, 11);
-	ssd1289_puts("8x8 Linux Acorn Font");
-
-	ssd1289_set_font_color(RGB_COL_WHITE, RGB_COL_BLACK);
-	ssd1289_set_text_cursor(10, 13);
-	ssd1289_puts("39x26 text console");
-	ssd1289_set_text_cursor(14, 14);
-	ssd1289_puts("8x8 Linux Acorn Font");
-
-	ssd1289_set_font_color(RGB_COL_CYAN, RGB_COL_BLACK);
-	ssd1289_set_text_cursor(10, 16);
-	ssd1289_puts("39x26 text console");
-	ssd1289_set_text_cursor(14, 17);
-	ssd1289_puts("8x8 Linux Acorn Font");
-}
-
 
 void SysTick_Handler() {
 	systick_counter++;
@@ -212,8 +189,8 @@ void SysTick_Handler() {
 
 	if((systick_counter % 100)==0) {	// every 100mS
 		led1 = !led1;
-		if(led1) LED1_ON();
-		else	 LED1_OFF();
+// 		if(led1) LED1_ON();
+// 		else	 LED1_OFF();
 	}
 }
 

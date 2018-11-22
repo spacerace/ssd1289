@@ -20,6 +20,8 @@
 #include "fonts/linux_8x16.h"
 #include "fonts/linux_8x8.h"
 #include "fonts/linux_pearl_8x8.h"
+#include "fonts/XGA_8x14.h"
+#include "fonts/XGA_8x16.h"
 
 extern int ssd1289_display_size_x;
 extern int ssd1289_display_size_y;
@@ -37,6 +39,7 @@ static struct simple_textcon {
 	int cursor_x;
 	int cursor_y;
 	uint16_t putc_delay;
+    int ignore_control_chars;
 } con;
 
 
@@ -87,11 +90,27 @@ void ssd1289_textcon_init() {
 	con.cursor_y = 0;
 
 	con.putc_delay = 0;
+    
+    con.ignore_control_chars = 0;
 	return;
 }
 
 void ssd1289_set_font(int font) {
 	switch(font) {
+        case FONT_XGA_8x16:
+            con.font_data = (uint8_t *)&XGA_8x16;
+            con.font_size_x = 8;
+            con.font_size_y = 16;
+            con.char_spacing_x = 0;
+            con.char_spacing_y = 0;
+            break;        
+        case FONT_XGA_8x14:
+            con.font_data = (uint8_t *)&XGA_8x14;
+            con.font_size_x = 8;
+            con.font_size_y = 14;
+            con.char_spacing_x = 0;
+            con.char_spacing_y = 0;
+            break;
 		case FONT_LINUX_ACORN_8x8:
 			con.font_data = (uint8_t *)&fontdata_acorn_8x8;
 			con.font_size_x = 8;
@@ -170,10 +189,7 @@ void ssd1289_put_char_at(int x_off, int y_off, uint8_t c) {
 	uint16_t size_x = con.font_size_x;
 	uint16_t size_y = con.font_size_y;
 
-
-
 	offset_in_charset =  c * con.font_size_y;
-
 
 	for(y = 0; y < size_y; y++) {
 		line_data = con.font_data[offset_in_charset+y];
@@ -211,6 +227,10 @@ void ssd1289_puts(char *str) {
 	return;
 }
 
+void ssd1289_ignore_control_chars(int cc) {
+    con.ignore_control_chars = cc;
+}
+
 void ssd1289_putc(char c) {
 	int cursor_x = con.cursor_x;
 	int cursor_y = con.cursor_y;
@@ -221,17 +241,19 @@ void ssd1289_putc(char c) {
 
 	int x_off = (cursor_x * font_size_x)+(cursor_x * spacing_x);
 
-	if(c == '\n') {
+    if(!con.ignore_control_chars) {
+        if(c == '\n') {
 			con.cursor_y++;
 			con.cursor_x = 0;
 			return;
-	}
-	if(c == '\r') {
+        }
+        if(c == '\r') {
 			con.cursor_x = 0;
 			return;
-	}
+        }
+    }
 
-	if(x_off >= (ssd1289_display_size_x-font_size_x)) {
+	if(x_off >= (ssd1289_display_size_x)) {
 		x_off = 0;
 		con.cursor_x = 0;
 		con.cursor_y++;				// increment global cursor
@@ -245,7 +267,5 @@ void ssd1289_putc(char c) {
 
 	con.cursor_x++;
 
-
 // 	vTaskDelay(con.putc_delay);
-
 }
