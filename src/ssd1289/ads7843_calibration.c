@@ -1,4 +1,4 @@
-/* simple ADS7843 driver for STM32F103
+/* simple ADS7843 driver for STM32F103 - calibration
  *
  *
  */
@@ -6,6 +6,8 @@
 #include <string.h>
 #include <stdio.h>
 #include "ssd1289.h"
+
+extern void systick_delay(int ticks);
 
 static void ads7843_calibration_draw_target(int x, int y, uint16_t color, uint16_t color_center);
 #ifndef MINI_CALIB

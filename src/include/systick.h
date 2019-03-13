@@ -1,8 +1,9 @@
 #ifndef __SYSTICK_H__
 #define __SYSTICK_H__
 
-#include <inttypes.h>
-
+void init_systick(void);
 void systick_delay(int ticks);
+uint32_t millis();
+
 
 #endif // __SYSTICK_H__

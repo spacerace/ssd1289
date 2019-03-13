@@ -1,7 +1,5 @@
 #include "leds.h"
 #include "buttons.h"
-#include "freertos/include/FreeRTOS.h"
-#include "freertos/include/task.h"
 #include "random.h"						// small, pseudo random
 #include "ssd1289.h"
 
@@ -10,19 +8,101 @@
 #include "image_windows31.h"			// windows 3.1 bootsplash
 #include "image_monkeyisland.h"			// scene from monkey island
 
+void ssd1289_demo(void);
 void demo_screen0();		// main demo screen
 void demo_screen1();		// text console demo
 void demo_screen2();		// images demo
 void demo_screen3();		// ellipse demo
 void demo_blacklight0();	// backlight flash/fade demo
 
-void vT_display_demo(void *p) {	
-	demo_screen3();
-	for(;;) {
-		asm("nop");
-	}
+void ssd1289_demo(void) {
+    
+    for(;;) {
+        ;
+    }
 }
-	 
+
+void dos_colors() {
+    int i;
+
+    ssd1289_clear();
+
+    ssd1289_set_font(FONT_XGA_8x14);
+
+    ssd1289_set_font_color(DOS_COLOR_5, RGB_COL_BLACK);
+    ssd1289_set_transparency(FALSE);
+
+    ssd1289_set_text_cursor(0, 0);
+    ssd1289_putc(0xC9);     // top left corner
+    for(i = 0; i < 38; i++)
+        ssd1289_putc(0xCD); // top border
+    ssd1289_putc(0xBB);     // top right corner
+
+    ssd1289_set_text_cursor(0, 16);
+    ssd1289_putc(0xC8);     // bottom left corner
+    for(i = 0; i < 38; i++)
+        ssd1289_putc(0xCD); // bottom border
+    ssd1289_putc(0xBC);     // bottom right corner
+
+    ssd1289_set_text_cursor(7, 0);
+    ssd1289_set_font_color(RGB_COL_CYAN, RGB_COL_BLACK);
+    ssd1289_puts(" DOS//IBM VGA 8x14 charset ");
+
+    ssd1289_set_font_color(RGB_COL_YELLOW, RGB_COL_BLACK);
+    ssd1289_set_text_cursor(6, 0);
+    ssd1289_putc('[');
+    ssd1289_set_text_cursor(34, 0);
+    ssd1289_putc(']');
+
+    ssd1289_set_font_color(DOS_COLOR_5, DOS_COLOR_0);
+    for(i = 1; i < 16; i++) {
+        ssd1289_set_text_cursor(0, i);
+        ssd1289_putc(0xBA);
+        ssd1289_set_text_cursor(39, i);
+        ssd1289_putc(0xBA);
+    }
+
+    ssd1289_set_font_color(DOS_COLOR_7, DOS_COLOR_0);
+    ssd1289_set_text_cursor(3, 2);
+
+    ssd1289_ignore_control_chars(1);
+
+    int x, y;
+    i = 0;
+    for(y = 0; y < 8; y++) {
+        ssd1289_set_text_cursor(4, 2+y);
+        for(x = 0; x < 32; x++) {
+            ssd1289_putc(i);
+            i++;
+        }
+    }
+
+    ssd1289_ignore_control_chars(0);
+
+    uint16_t colors[16] = { DOS_COLOR_0, DOS_COLOR_1, DOS_COLOR_2, DOS_COLOR_3, DOS_COLOR_4,
+        DOS_COLOR_5, DOS_COLOR_6, DOS_COLOR_7, DOS_COLOR_8, DOS_COLOR_9,
+        DOS_COLOR_10, DOS_COLOR_11, DOS_COLOR_12, DOS_COLOR_13,
+        DOS_COLOR_14, DOS_COLOR_15 };
+
+    for(i = 0; i < 8; i++) {
+        x = 45+(i*30);
+        y = 152;
+        ssd1289_rect     (x-1, y-1, x+20, y+26, RGB_COL_YELLOW);
+        ssd1289_fill_rect(x, y, x+20, y+25, colors[i]);
+    }
+
+    for(i = 0; i < 8; i++) {
+        x = 45+(i*30);
+        y = 188;
+        ssd1289_rect     (x-1, y-1, x+20, y+26, RGB_COL_YELLOW);
+        ssd1289_fill_rect(x, y, x+20, y+25, colors[i+7]);
+    }
+
+    return;
+}
+
+
+
 void demo_screen4() {
 		int r0, r1, x, y;
 		uint16_t color;

@@ -25,9 +25,6 @@ TARGET=$(OUTPUT_DIR)/main
 INCLUDE = -I./src/fw_lib/include \
 	  -I./src/include \
 	  -I./src/fw_lib/extra_added/ \
-	  -I./src/freertos/include/ \
-	  -I./src/mmc-sd/ \
-	  -I./src/mmc-sd/fatfs12a/ \
 	  -I./src/ssd1289/
 
 SRCS = 	./src/system_stm32f10x.c \
@@ -45,16 +42,6 @@ SRCS = 	./src/system_stm32f10x.c \
 	./src/fw_lib/stm32f10x_fsmc.c \
 	./src/fw_lib/stm32f10x_systick.c \
 	./src/fw_lib/misc.c \
-	./src/freertos/croutine.c \
-	./src/freertos/event_groups.c \
-	./src/freertos/heap_1.c \
-	./src/freertos/list.c \
-	./src/freertos/queue.c \
-	./src/freertos/tasks.c \
-	./src/freertos/timers.c \
-	./src/mmc-sd/sdio_sd.c \
-	./src/mmc-sd/fatfs12a/diskio.c \
-	./src/mmc-sd/fatfs12a/ff.c \
 	./src/ssd1289/ads7843.c \
 	./src/ssd1289/ads7843_calibration.c \
 	./src/ssd1289/ssd1289.c \
@@ -66,10 +53,9 @@ SRCS = 	./src/system_stm32f10x.c \
 	./src/random.c \
 	./src/usart.c \
 	./src/buttons.c \
-	./src/shell.c \
-	./src/encoder.c \
+	./src/systick.c \
+	./src/ssd1289_demo.c \
 	./src/main.c \
-	./src/timer.c
 
 OBJS=$(SRCS:.c=.o)
 

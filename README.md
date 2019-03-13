@@ -1,12 +1,40 @@
 # SSD1289 Driver for STM32F1xx  
   
 This is a driver for `SSD1289` displays for use with `STM32F103` devices.  
+It also brings a ADS7843 touchscreen driver.  
+  
+It is very simple to use, see `src/main.c`.  
   
 # Screenshots  
   
-TBD  
+# Provided graphics and text functions  
+See `src/include/ssd1289.h` for all available functions.  
+See `src/ssd1289_demo.c` for examples on all those functions.  
   
-# Technical description:  
+If you want to use printf-family for outputting on display use `sprintf()/snprintf()`
+and `ssd1289_puts()`. Regular `printf()` will output to USART1.
+  
+# 4 different fonts taken from linux kernel + IBM's XGA BIOS font  
+I took 4 different fonts from Linux Kernel. They are really nice and  
+good to read on this display.  
+In another project I dissected hundreds of video BIOSes for their fonts.  
+I have included IBM's XGA fonts in sizes 8x8, 8x14 and 8x16.  
+  
+# Touchscreen calibration
+See `src/ssd1289/ads7843_calibration.c` for an example calibration routine.  
+This takes up some space. If you do not intend to change you display,  
+you may just run this calibration routine once and use it's output for  
+compiled in calibration data.
+  
+# Speed measurements + Code size
+These measurements were done on an overclocked (128MHz) STM32F103:  
+```
+- ssd1289_print_image(): printing an image from flash       = 98.3mS
+- ssd1289_fill_screen(): fill screen with single color      = 11.2mS
+```
+The library uses 3.5k-30k of flash, depending on usage of it's functions.  
+  
+# Hardware connections:  
 The MCU communicates via FSMC with your display, mode is 16bit 8080-bus.  
 Display color format is `RGB565`. This means a 16bit color value is  
 encoded like this:  
@@ -22,93 +50,6 @@ All the bus-stuff is done by the chip's FSMC, so reading/writing
 to `0x60000000` means access to the registers, r/w to `0x60020000`  
 means access to the RAM. We don't have to deal with `A19/RS` by ourself.  
   
-# Provided graphics and text functions  
-This would be too long for a generic README file, so please refer  
-to `src/include/ssd1289.h` for now. I will write a function-documentation  
-page (hopefully) soon.  
-Everything should be self-explaining.  
-You should also see `src/main.c` for an example on how to use it.  
-  
-I have implemented a small console, that does automatically wrap-around  
-to next line. Just set cursor to a position (ex. 0/0) and write strings  
-to output.__
-printf will be used from libc. The file `syscalls.c` has a  
-`_write()`-implementation, that takes care of outputting it to USART1.
-  
-All graphic and text functions can be used at any time after normal  
-initialization. For example, if you use the text console you can  
-also write a string over it to specific x/y-pointed position without  
-interfering with the text console. Also graphic functions can be used  
-like this. After this you can go on with text-output as nothing has  
-happened in between.  
-  
-# 4 different fonts taken from linux kernel  
-I took 4 different fonts from Linux Kernel. They are really nice and  
-good to read on this display.  
-  
-# Will fonts created by glcdFontCreator be supported?   
-This is a great tool, written by "Ape", to convert system fonts  
-to includeable headers.  
-These fonts have a different layout in memory. I used these before and  
-i will support them again. Sorry for not having this released by now.  
-  
-# FreeRTOS, FatFS, MMC/SD-cards, ADS7841 touchscreen  
-This driver was written in a FreeRTOS environment/template. It can be  
-used standalone also. MMC/SD support works in the original template,  
-but I have not tried it up to now within this project.  
-Touchscreen code is not done now. Not usable.  
-  
-# code-/data-size:  
-This library was never meant to be fast or small, but  
-it seems I am going this way...  
-RAM usage needs to be estimated, but i think it won't be more than 1k.
-  
-`The driver itself = ~660bytes`  
-`The graphics part = ~720bytes`  
-`text with all 4 fonts included it takes ~10.750bytes`  
-  
-In demo code main.c includes a small image (Amiga Workbench Floppy).  
-`This picture takes 18200bytes. ` 
-The font sizes are:  
-```
-Linux 8x8	2k  
-Linux 8x16	4k  
-Acorn 8x8	2k  
-Pearl 8x8	2k  
-```
-I didn't try, but I estimate the smallest possible configuration to be:  
-```
-- driver  660b  
-- gfx     720b  
-- 8x8fnt 2048b  
----------------  
-         3428b - NOT EVEN 3.5k  
-```
-         
-# Speed issues  
-The connection type used by my display is 8080-bus. This isn't the   
-slowest - but on an 72MHz STM32 you can see the whole screen updating.  
-I assume there are a few spots in code to improve speed, but there  
-can't be done much.  
-It is fast enough when only changing a few parts of the screen (ex.:   
-you won't see flickering while updating a small clock-string), but  
-a fill_screen takes a lot. Maybe 1/5th of a second.  
-
-# Speed measurements 
-These measurements were done on an 128MHz STM32F103:  
-```
-- ssd1289_print_image(): printing an image from flash       = 98.3mS
-- ssd1289_fill_screen(): fill screen with single color      = 11.2mS
-- printf():              printf("Hello World\r\n")@11k2     =  1.2mS
-```
-72MHz STM32F103:  
-
-# Overclocking the STM32
-
-# Hardware connections:  
-`controller: STM32F103VCT6`  
-`lcd: HY32D  (ssd1289 controller)`  
-You'll find a circuit diagram in the source tree.  
 ```
 LCD Pin	    STM32F10x AF    STM32F103VCT6 Pin  
 -------------------------------------------------------  
@@ -138,7 +79,7 @@ LCD_DB17	FSMC_D15		PD10
 ```
   
 # Authors  
-(c) 2015, 2017, 2018 Nils Stec <stecdose@gmail.com>  
+(c) 2015, 2017-2019 Nils Stec <stecdose@gmail.com>  
 (c) 2010 poweravr from powermcu.com has written:   
 bresenham line drawing function, parts of initialization routine  
   
@@ -154,20 +95,6 @@ bresenham line drawing function, parts of initialization routine
 - 2018 march  finally getting a release done...  
 - 2018 may
 - 2018 june dotmatrix+7seg functions  
-  
-  
-# TODO TODO TODO   
-- comment cryptic init routine, makes easier to adapt to other displays  
-  this job is almost done, but you still need the datasheet for SSD1289  
-  to understand what's going on.  
-- circle, pie, ...  
-- helper function to support animations  
-- add support for image formats: PNG, JPG, GIF for animations  
-- examples + photos + videos  
-- font converter  
-- image converter  
-- ads7843 touchscreen code is not working  
-  
-  
-  
+- 2018 nov      ADS7843 working now, calibration GUI
+- 2019 mar      cleanup
   

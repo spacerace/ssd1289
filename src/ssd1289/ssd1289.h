@@ -108,7 +108,7 @@ int ssd1289_print_image(const tImage *image, uint16_t x_off, uint16_t y_off);	//
 //#define MINI_CALIB  // if this is set, no text in cal., a mini calibration routine will be used
 // big calibration routine needs about 3.5k more than small one. 
 // if you're using printf/sprintf anyway, there's not much difference.
-#define MINI_CALIB_TEST // no message in test-paint if this is set
+//#define MINI_CALIB_TEST // no message in test-paint if this is set
 void init_ads7843();
 int ads7843_calibration(void);
 uint16_t ads7843_read_x();

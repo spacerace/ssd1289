@@ -1,7 +1,7 @@
 /*
  * (c) 2017 Nils Stec <stecdose@gmail.com>
  *
- * Fonts are taken from linux's source code.
+ * Fonts are taken from linux's source code and IBM's XGA BIOS.
  * simple text console written by Nils Stec.
  *
  * TODO:
@@ -13,8 +13,6 @@
 #include <stdio.h>
 
 #include "ssd1289.h"
-
-#include "../freertos/include/FreeRTOS.h"
 
 #include "fonts/linux_acorn_8x8.h"
 #include "fonts/linux_8x16.h"
